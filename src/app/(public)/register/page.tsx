@@ -1,0 +1,279 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { generateCaptcha } from '@/lib/utils';
+import Button from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const { register } = useAuth();
+
+  const [form, setForm] = useState({
+    libraryName: '',
+    ownerName: '',
+    email: '',
+    password: '',
+    phone: '',
+    address: '',
+    maxCapacity: '',
+  });
+  const [captcha, setCaptcha] = useState({ question: '', answer: 0 });
+  const [captchaInput, setCaptchaInput] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setCaptcha(generateCaptcha());
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    // Validation
+    if (!form.libraryName || !form.ownerName || !form.email || !form.password || !form.phone || !form.address || !form.maxCapacity) {
+      setError('Please fill in all fields.');
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    const captchaNum = parseInt(captchaInput, 10);
+    if (isNaN(captchaNum) || captchaNum !== captcha.answer) {
+      setError('Incorrect CAPTCHA answer. Please try again.');
+      setCaptcha(generateCaptcha());
+      setCaptchaInput('');
+      return;
+    }
+
+    setLoading(true);
+    const result = await register({
+      libraryName: form.libraryName,
+      ownerName: form.ownerName,
+      email: form.email,
+      password: form.password,
+      phone: form.phone,
+      address: form.address,
+      maxCapacity: parseInt(form.maxCapacity, 10),
+      captchaAnswer: captchaNum,
+      captchaExpected: captcha.answer,
+    });
+    setLoading(false);
+
+    if (result.success) {
+      setSuccess(result.message || 'Registration successful! Redirecting to login...');
+      setTimeout(() => router.push('/login'), 2000);
+    } else {
+      setError(result.message || 'Registration failed. Please try again.');
+      setCaptcha(generateCaptcha());
+      setCaptchaInput('');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#1B5E20] via-[#2E7D32] to-[#4CAF50] flex items-center justify-center p-4 py-10">
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-36 -translate-x-36" />
+
+      <div className="w-full max-w-5xl relative z-10 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left: Info Panel */}
+          <div className="hidden lg:flex flex-col justify-center text-white p-8">
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
+                  📚
+                </div>
+                <span className="text-2xl font-bold">Ligital</span>
+              </div>
+              <h2 className="text-3xl font-bold mb-4 leading-tight">
+                Start managing your library the smart way
+              </h2>
+              <p className="text-white/70 text-lg leading-relaxed">
+                Join hundreds of library owners who have modernized their operations with Ligital.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { icon: '✅', text: '14-day free trial, no credit card required' },
+                { icon: '📊', text: 'Complete dashboard with real-time analytics' },
+                { icon: '💺', text: 'Visual seat management system' },
+                { icon: '📱', text: 'Mobile-friendly interface' },
+              ].map((item) => (
+                <div key={item.text} className="flex items-center gap-3">
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-white/90 text-sm">{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Registration Form */}
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            {/* Mobile Logo */}
+            <div className="lg:hidden text-center mb-6">
+              <div className="inline-flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#E8F5E9] rounded-xl flex items-center justify-center text-xl">
+                  📚
+                </div>
+                <span className="text-xl font-bold text-[#1B5E20]">Ligital</span>
+              </div>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-800 mb-1">Create your account</h2>
+            <p className="text-sm text-gray-400 mb-6">Start your 14-day free trial</p>
+
+            {error && (
+              <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 flex items-center gap-2">
+                <span>⚠️</span>
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-5 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700 flex items-center gap-2">
+                <span>✅</span>
+                {success}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  id="register-library-name"
+                  label="Library Name"
+                  name="libraryName"
+                  placeholder="My Study Library"
+                  value={form.libraryName}
+                  onChange={handleChange}
+                />
+                <Input
+                  id="register-owner-name"
+                  label="Owner Name"
+                  name="ownerName"
+                  placeholder="John Doe"
+                  value={form.ownerName}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <Input
+                id="register-email"
+                label="Email Address"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handleChange}
+              />
+
+              <Input
+                id="register-password"
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="Minimum 6 characters"
+                value={form.password}
+                onChange={handleChange}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  id="register-phone"
+                  label="Phone Number"
+                  name="phone"
+                  type="tel"
+                  placeholder="+91 9876543210"
+                  value={form.phone}
+                  onChange={handleChange}
+                />
+                <Input
+                  id="register-max-capacity"
+                  label="Max Seat Capacity"
+                  name="maxCapacity"
+                  type="number"
+                  placeholder="e.g. 50"
+                  value={form.maxCapacity}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <Input
+                id="register-address"
+                label="Library Address"
+                name="address"
+                placeholder="Full address"
+                value={form.address}
+                onChange={handleChange}
+              />
+
+              {/* CAPTCHA */}
+              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  🤖 Verify you&apos;re human
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-[#1B5E20] bg-[#E8F5E9] px-4 py-2 rounded-xl">
+                    {captcha.question}
+                  </span>
+                  <Input
+                    id="register-captcha"
+                    type="number"
+                    placeholder="Answer"
+                    value={captchaInput}
+                    onChange={(e) => setCaptchaInput(e.target.value)}
+                    className="max-w-[120px]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCaptcha(generateCaptcha());
+                      setCaptchaInput('');
+                    }}
+                    className="text-sm text-[#4CAF50] hover:text-[#1B5E20] font-semibold cursor-pointer"
+                  >
+                    🔄
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                id="register-submit"
+                type="submit"
+                fullWidth
+                loading={loading}
+                size="lg"
+              >
+                Create Account
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500">
+                Already have an account?{' '}
+                <Link href="/login" className="font-semibold text-[#1B5E20] hover:text-[#2E7D32] transition-colors">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

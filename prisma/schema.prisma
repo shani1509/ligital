@@ -1,0 +1,204 @@
+// prisma/schema.prisma
+// Ligital — Multi-Tenant B2B SaaS for Study Library Management
+// Prisma 7.x format — datasource URL moved to prisma.config.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────
+
+enum LibraryStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+}
+
+enum SeatStatus {
+  AVAILABLE
+  OCCUPIED
+}
+
+enum StudentStatus {
+  ACTIVE
+  EXPIRED
+  LEFT
+}
+
+enum PlatformPlanType {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum BillingStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// ─── Models ─────────────────────────────────────────────
+
+/// The root tenant entity. Each library is an isolated tenant.
+model Library {
+  id          String        @id @default(uuid())
+  name        String
+  address     String
+  phone       String
+  maxCapacity Int
+  status      LibraryStatus @default(TRIAL)
+  trialEndsAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  seats         Seat[]
+  students      Student[]
+  plans         Plan[]
+  subscriptions Subscription[]
+  billing       PlatformBilling?
+
+  @@map("libraries")
+}
+
+/// Library owner/admin.
+model User {
+  id           String   @id @default(uuid())
+  libraryId    String
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String
+  role         UserRole @default(OWNER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library Library @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  @@index([libraryId])
+  @@index([email])
+  @@map("users")
+}
+
+/// Platform-level billing.
+model PlatformBilling {
+  id          String           @id @default(uuid())
+  libraryId   String           @unique
+  planType    PlatformPlanType
+  amountPaise Int
+  startDate   DateTime
+  endDate     DateTime
+  status      BillingStatus    @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library Library @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+
+  @@index([libraryId])
+  @@map("platform_billings")
+}
+
+/// Physical seats in the library.
+model Seat {
+  id         String     @id @default(uuid())
+  libraryId  String
+  seatNumber Int
+  status     SeatStatus @default(AVAILABLE)
+  studentId  String?    @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library Library  @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  student Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@unique([libraryId, seatNumber])
+  @@index([libraryId, status])
+  @@map("seats")
+}
+
+/// Students enrolled in a library.
+model Student {
+  id        String        @id @default(uuid())
+  libraryId String
+  name      String
+  email     String?
+  phone     String
+  address   String?
+  status    StudentStatus @default(EXPIRED)
+  joinDate  DateTime      @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library       Library        @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  seat          Seat?
+  subscriptions Subscription[]
+
+  @@index([libraryId])
+  @@index([libraryId, status])
+  @@map("students")
+}
+
+/// Reusable subscription plans.
+model Plan {
+  id           String  @id @default(uuid())
+  libraryId    String
+  name         String
+  durationDays Int
+  pricePaise   Int
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library       Library        @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+
+  @@index([libraryId])
+  @@map("plans")
+}
+
+/// Student subscriptions.
+model Subscription {
+  id              String             @id @default(uuid())
+  libraryId       String
+  studentId       String
+  planId          String
+  startDate       DateTime
+  endDate         DateTime
+  status          SubscriptionStatus @default(ACTIVE)
+  amountPaidPaise Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library Library @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plan    Plan    @relation(fields: [planId], references: [id], onDelete: Restrict)
+
+  @@index([libraryId])
+  @@index([studentId])
+  @@index([libraryId, status])
+  @@index([endDate])
+  @@map("subscriptions")
+}
