@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,8 +46,14 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
-              📚
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+              <Image 
+                src="/logo.png" 
+                alt="Ligital Logo" 
+                width={48} 
+                height={48} 
+                className="object-contain p-1"
+              />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white">Welcome Back</h1>

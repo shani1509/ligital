@@ -7,6 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { generateCaptcha } from '@/lib/utils';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Image from "next/image";
+
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -95,8 +97,14 @@ export default function RegisterPage() {
           <div className="hidden lg:flex flex-col justify-center text-white p-8">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl">
-                  📚
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                  <Image 
+                    src="/logo.png" 
+                    alt="Ligital Logo" 
+                    width={48} 
+                    height={48} 
+                    className="object-contain p-1"
+                  />
                 </div>
                 <span className="text-2xl font-bold">Ligital</span>
               </div>

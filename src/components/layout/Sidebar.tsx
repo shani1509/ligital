@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+
 
 const menuItems = [
   {
@@ -41,8 +43,14 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-6 py-6 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">
-            📚
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+            <Image 
+              src="/logo.png" 
+              alt="Ligital Logo" 
+              width={40} 
+              height={40} 
+              className="object-contain p-1"
+            />
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight">Ligital</h1>
