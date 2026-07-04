@@ -106,11 +106,11 @@ export default function LoginPage() {
               }
             />
 
-            <div className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 min-h-[50px] flex items-center mb-4">
+            <div className="w-full flex items-center justify-center border border-gray-300 rounded-lg overflow-hidden bg-white [&>div]:w-full [&>div]:max-w-full [&_iframe]:!w-full [&_iframe]:!max-w-full mb-4">
               <Turnstile 
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} 
                 onSuccess={(token) => setTurnstileToken(token)}
-                options={{ theme: 'light' }}
+                options={{ theme: 'light', size: 'flexible' }}
               />
             </div>
 

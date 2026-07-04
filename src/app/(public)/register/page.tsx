@@ -81,7 +81,7 @@ export default function RegisterPage() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-36 -translate-x-36" />
 
-      <div className="w-full max-w-5xl relative z-10 animate-fade-in">
+      <div className="w-full max-w-5xl relative z-10 animate-fade-in pt-24 lg:pt-0">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left: Info Panel */}
           <div className="hidden lg:flex flex-col justify-center text-white p-8">
@@ -123,16 +123,6 @@ export default function RegisterPage() {
 
           {/* Right: Registration Form */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
-            {/* Mobile Logo */}
-            <div className="lg:hidden text-center mb-6">
-              <div className="inline-flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#E8F5E9] rounded-xl flex items-center justify-center text-xl">
-                  📚
-                </div>
-                <span className="text-xl font-bold text-[#1B5E20]">Ligital</span>
-              </div>
-            </div>
-
             <h2 className="text-xl font-bold text-gray-800 mb-1">Create your account</h2>
             <p className="text-sm text-gray-400 mb-6">Start your 14-day free trial</p>
 
@@ -221,11 +211,11 @@ export default function RegisterPage() {
               />
 
               {/* CAPTCHA */}
-              <div className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 min-h-[50px] flex items-center mb-4">
+              <div className="w-full flex items-center justify-center border border-gray-300 rounded-lg overflow-hidden bg-white [&>div]:w-full [&>div]:max-w-full [&_iframe]:!w-full [&_iframe]:!max-w-full mb-4">
                 <Turnstile 
                   siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} 
                   onSuccess={(token) => setTurnstileToken(token)}
-                  options={{ theme: 'light' }}
+                  options={{ theme: 'light', size: 'flexible' }}
                 />
               </div>
 
