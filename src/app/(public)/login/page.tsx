@@ -7,12 +7,14 @@ import { useAuth } from '@/context/AuthContext';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Image from "next/image";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,14 +27,20 @@ export default function LoginPage() {
       return;
     }
 
+    if (!turnstileToken) {
+      setError('Please complete the security check.');
+      return;
+    }
+
     setLoading(true);
-    const result = await login(email, password);
+    const result = await login(email, password, turnstileToken);
     setLoading(false);
 
     if (result.success) {
       router.push('/dashboard');
     } else {
       setError(result.message || 'Login failed. Please try again.');
+      setTurnstileToken('');
     }
   };
 
@@ -97,6 +105,14 @@ export default function LoginPage() {
                 </svg>
               }
             />
+
+            <div className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 min-h-[50px] flex items-center mb-4">
+              <Turnstile 
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} 
+                onSuccess={(token) => setTurnstileToken(token)}
+                options={{ theme: 'light', size: 'flexible' }}
+              />
+            </div>
 
             <Button
               id="login-submit"

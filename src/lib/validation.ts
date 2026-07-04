@@ -42,13 +42,13 @@ export const registerSchema = z.object({
     .int('Capacity must be a whole number')
     .min(1, 'Capacity must be at least 1')
     .max(1000, 'Capacity cannot exceed 1000'),
-  captchaAnswer: z.number().int(),
-  captchaExpected: z.number().int(),
+  cfTurnstileToken: z.string().min(1, 'Turnstile validation is required'),
 });
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address').toLowerCase().trim(),
   password: z.string().min(1, 'Password is required'),
+  cfTurnstileToken: z.string().min(1, 'Turnstile validation is required'),
 });
 
 // ─── Student Schemas ────────────────────────────────────

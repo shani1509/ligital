@@ -33,7 +33,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(apiError('Validation failed', errors), { status: 400 });
     }
 
-    const { email, password } = parsed.data;
+    const { email, password, cfTurnstileToken } = parsed.data;
+
+    // Verify Turnstile Token
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+    const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${turnstileSecret}&response=${cfTurnstileToken}`,
+    });
+    
+    const turnstileData = await turnstileRes.json();
+    if (!turnstileData.success) {
+      return NextResponse.json(
+        apiError('CAPTCHA verification failed. Please try again.'),
+        { status: 400 }
+      );
+    }
 
     // Find user with library info
     const user = await prisma.user.findUnique({

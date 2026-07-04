@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { generateCaptcha } from '@/lib/utils';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Image from "next/image";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 
 export default function RegisterPage() {
@@ -23,15 +23,10 @@ export default function RegisterPage() {
     address: '',
     maxCapacity: '',
   });
-  const [captcha, setCaptcha] = useState({ question: '', answer: 0 });
-  const [captchaInput, setCaptchaInput] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setCaptcha(generateCaptcha());
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -53,11 +48,8 @@ export default function RegisterPage() {
       return;
     }
 
-    const captchaNum = parseInt(captchaInput, 10);
-    if (isNaN(captchaNum) || captchaNum !== captcha.answer) {
-      setError('Incorrect CAPTCHA answer. Please try again.');
-      setCaptcha(generateCaptcha());
-      setCaptchaInput('');
+    if (!turnstileToken) {
+      setError('Please complete the security check.');
       return;
     }
 
@@ -70,8 +62,7 @@ export default function RegisterPage() {
       phone: form.phone,
       address: form.address,
       maxCapacity: parseInt(form.maxCapacity, 10),
-      captchaAnswer: captchaNum,
-      captchaExpected: captcha.answer,
+      cfTurnstileToken: turnstileToken,
     });
     setLoading(false);
 
@@ -80,8 +71,7 @@ export default function RegisterPage() {
       setTimeout(() => router.push('/login'), 2000);
     } else {
       setError(result.message || 'Registration failed. Please try again.');
-      setCaptcha(generateCaptcha());
-      setCaptchaInput('');
+      setTurnstileToken('');
     }
   };
 
@@ -118,13 +108,13 @@ export default function RegisterPage() {
 
             <div className="space-y-4">
               {[
-                { icon: '✅', text: '14-day free trial, no credit card required' },
-                { icon: '📊', text: 'Complete dashboard with real-time analytics' },
-                { icon: '💺', text: 'Visual seat management system' },
-                { icon: '📱', text: 'Mobile-friendly interface' },
+                { icon: '/trial.png', text: '14-day free trial, no credit card required' },
+                { icon: '/dashboard.png', text: 'Complete dashboard with real-time analytics' },
+                { icon: '/seat.png', text: 'Visual seat management system' },
+                { icon: '/mobile.png', text: 'Mobile-friendly interface' },
               ].map((item) => (
                 <div key={item.text} className="flex items-center gap-3">
-                  <span className="text-lg">{item.icon}</span>
+                  <Image src={item.icon} alt="Feature Icon" width={20} height={20} className="object-contain" />
                   <span className="text-white/90 text-sm">{item.text}</span>
                 </div>
               ))}
@@ -231,33 +221,12 @@ export default function RegisterPage() {
               />
 
               {/* CAPTCHA */}
-              <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <p className="text-sm font-medium text-gray-700 mb-2">
-                  🤖 Verify you&apos;re human
-                </p>
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-[#1B5E20] bg-[#E8F5E9] px-4 py-2 rounded-xl">
-                    {captcha.question}
-                  </span>
-                  <Input
-                    id="register-captcha"
-                    type="number"
-                    placeholder="Answer"
-                    value={captchaInput}
-                    onChange={(e) => setCaptchaInput(e.target.value)}
-                    className="max-w-[120px]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCaptcha(generateCaptcha());
-                      setCaptchaInput('');
-                    }}
-                    className="text-sm text-[#4CAF50] hover:text-[#1B5E20] font-semibold cursor-pointer"
-                  >
-                    🔄
-                  </button>
-                </div>
+              <div className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 min-h-[50px] flex items-center mb-4">
+                <Turnstile 
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} 
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  options={{ theme: 'light', size: 'flexible' }}
+                />
               </div>
 
               <Button

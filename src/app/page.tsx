@@ -6,22 +6,22 @@ import Image from 'next/image';
 
 const features = [
   {
-    icon: '🎓',
+    icon: '/managment.png',
     title: 'Student Management',
     description: 'Register students, track subscriptions, and manage their seat assignments effortlessly.',
   },
   {
-    icon: '💺',
+    icon: '/seat.png',
     title: 'Seat Management',
     description: 'Visual seat grid to assign, release, and monitor occupancy in real-time.',
   },
   {
-    icon: '📋',
+    icon: '/plans.png',
     title: 'Flexible Plans',
     description: 'Create custom subscription plans with flexible durations and pricing.',
   },
   {
-    icon: '📊',
+    icon: '/report.png',
     title: 'Analytics & Reports',
     description: 'Revenue charts, subscription analytics, and occupancy reports at a glance.',
   },
@@ -131,7 +131,7 @@ export default function HomePage() {
                 style={{ animationDelay: `${i * 100}ms` }}
               >
                 <div className="w-14 h-14 bg-[#E8F5E9] rounded-xl flex items-center justify-center text-2xl mb-4">
-                  {feature.icon}
+                  <Image src={feature.icon} alt={feature.title} width={32} height={32} className="object-contain" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-800 mb-2">{feature.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{feature.description}</p>

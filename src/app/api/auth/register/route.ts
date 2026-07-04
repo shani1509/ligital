@@ -36,14 +36,23 @@ export async function POST(request: NextRequest) {
       phone,
       address,
       maxCapacity,
-      captchaAnswer,
-      captchaExpected,
+      cfTurnstileToken,
     } = parsed.data;
 
-    // Verify CAPTCHA
-    if (captchaAnswer !== captchaExpected) {
+    // Verify Turnstile Token
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA'; // Fallback for dev if not set
+    const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `secret=${turnstileSecret}&response=${cfTurnstileToken}`,
+    });
+    
+    const turnstileData = await turnstileRes.json();
+    if (!turnstileData.success) {
       return NextResponse.json(
-        apiError('Incorrect CAPTCHA answer. Please try again.'),
+        apiError('Security check failed. Please try again.'),
         { status: 400 }
       );
     }

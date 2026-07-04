@@ -7,7 +7,7 @@ interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   isExpired: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  login: (email: string, password: string, cfTurnstileToken: string) => Promise<{ success: boolean; message?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -21,8 +21,7 @@ interface RegisterData {
   phone: string;
   address: string;
   maxCapacity: number;
-  captchaAnswer: number;
-  captchaExpected: number;
+  cfTurnstileToken: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,12 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, cfTurnstileToken: string) => {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, cfTurnstileToken }),
       });
       const data = await res.json();
       if (data.success) {
