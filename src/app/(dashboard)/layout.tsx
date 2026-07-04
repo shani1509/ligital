@@ -5,6 +5,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default function DashboardLayout({
 }) {
   const { user, loading, isExpired } = useAuth();
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Routes allowed even when expired
   const allowedWhenExpired = ['/billing', '/settings'];
@@ -34,14 +36,25 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-[#F3F4F6]">
+    <div className="flex h-screen bg-[#F3F4F6] overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 flex-col ml-[260px]">
+      <div className="flex flex-1 flex-col md:ml-[260px] min-w-0 transition-all duration-300">
         {/* Navbar */}
-        <Navbar />
+        <Navbar 
+          isSidebarOpen={isSidebarOpen} 
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+        />
 
         {/* Content */}
         <main className="flex-1 overflow-y-auto p-6">

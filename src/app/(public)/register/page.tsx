@@ -87,7 +87,7 @@ export default function RegisterPage() {
           <div className="hidden lg:flex flex-col justify-center text-white p-8">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                {/* <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                   <Image 
                     src="/logo.png" 
                     alt="Ligital Logo" 
@@ -95,8 +95,8 @@ export default function RegisterPage() {
                     height={48} 
                     className="object-contain p-1"
                   />
-                </div>
-                <span className="text-2xl font-bold">Ligital</span>
+                </div> */}
+                {/* <span className="text-2xl font-bold">Ligital</span> */}
               </div>
               <h2 className="text-3xl font-bold mb-4 leading-tight">
                 Start managing your library the smart way

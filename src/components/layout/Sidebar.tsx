@@ -12,24 +12,24 @@ const menuItems = [
   {
     section: 'MENU',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-      { label: 'Students', href: '/students', icon: '🎓' },
-      { label: 'Add Student', href: '/students/add', icon: '➕' },
-      { label: 'Plans', href: '/plans', icon: '📋' },
-      { label: 'Seats', href: '/seats', icon: '💺' },
-      { label: 'Reports', href: '/reports', icon: '📈' },
+      { label: 'Dashboard', href: '/dashboard', icon: '/main_dashboard.png' },
+      { label: 'Students', href: '/students', icon: '/student.png' },
+      { label: 'Add Student', href: '/students/add', icon: '/add_students.png' },
+      { label: 'Plans', href: '/plans', icon: '/plans_dashboard.png' },
+      { label: 'Seats', href: '/seats', icon: '/seat_dashboard.png' },
+      { label: 'Reports', href: '/reports', icon: '/report_dashboard.png' },
     ],
   },
   {
     section: 'GENERAL',
     items: [
-      { label: 'Settings', href: '/settings', icon: '⚙️' },
-      { label: 'Billing', href: '/billing', icon: '💳' },
+      { label: 'Settings', href: '/settings', icon: '/setting.png' },
+      { label: 'Billing', href: '/billing', icon: '/billing.png' },
     ],
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }: { isOpen?: boolean }) {
   const pathname = usePathname();
   const { user, logout, isExpired } = useAuth();
 
@@ -39,7 +39,10 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-[260px] bg-[#1B5E20] text-white flex flex-col z-40">
+    <aside className={cn(
+      "fixed left-0 top-0 bottom-0 w-[260px] bg-[#1B5E20] text-white flex flex-col z-40 transform transition-transform duration-300 ease-in-out",
+      isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+    )}>
       {/* Logo */}
       <div className="px-6 py-6 border-b border-white/10">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -79,7 +82,7 @@ export default function Sidebar() {
                         : 'text-white/80 hover:bg-white/10 hover:text-white'
                     )}
                   >
-                    <span className="text-lg">{item.icon}</span>
+                    <Image alt={item.label} className="object-contain" height={20} src={item.icon} width={20}/>
                     <span>{item.label}</span>
                     {/* Billing indicator */}
                     {item.label === 'Billing' && isExpired && (
@@ -102,7 +105,7 @@ export default function Sidebar() {
       <div className="px-4 pb-4">
         <div className="bg-[#2E7D32] rounded-xl p-4">
           <div className="text-center mb-2">
-            <span className="text-2xl">📱</span>
+            <Image alt="Mobile App" className="mx-auto object-contain" height={24} src="/mobile_dashboard.png" width={24}/>
           </div>
           <p className="text-xs text-center text-white/90 font-medium mb-2">
             Get the mobile app for easier management
@@ -120,7 +123,7 @@ export default function Sidebar() {
           onClick={logout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-red-500/20 hover:text-white transition-all duration-200 cursor-pointer"
         >
-          <span className="text-lg">🚪</span>
+          <Image alt="Logout" className="object-contain" height={20} src="/logout.png" width={20}/>
           <span>Logout</span>
         </button>
       </div>

@@ -54,7 +54,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+            {/* <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
               <Image 
                 src="/logo.png" 
                 alt="Ligital Logo" 
@@ -62,9 +62,9 @@ export default function LoginPage() {
                 height={48} 
                 className="object-contain p-1"
               />
-            </div>
+            </div> */}
           </div>
-          <h1 className="text-2xl font-bold text-white">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-white">Welcome To Ligital</h1>
           <p className="text-white/70 text-sm mt-1">Sign in to your Ligital account</p>
         </div>
 

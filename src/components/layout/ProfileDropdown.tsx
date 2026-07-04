@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
 
 interface ProfileDropdownProps {
   onClose: () => void;
@@ -26,7 +27,7 @@ export default function ProfileDropdown({ onClose }: ProfileDropdownProps) {
           onClick={onClose}
           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          <span>⚙️</span>
+          <Image alt="Settings" className="object-contain" height={20} src="/setting_profile.png" width={20}/>
           <span>Settings</span>
         </Link>
         <Link
@@ -34,7 +35,7 @@ export default function ProfileDropdown({ onClose }: ProfileDropdownProps) {
           onClick={onClose}
           className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          <span>💳</span>
+          <Image alt="Billing" className="object-contain" height={20} src="/billing_profile.png" width={20}/>
           <span>Billing</span>
         </Link>
       </div>
@@ -49,7 +50,7 @@ export default function ProfileDropdown({ onClose }: ProfileDropdownProps) {
           }}
           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
         >
-          <span>🚪</span>
+          <Image alt="Logout" className="object-contain" height={20} src="/logout_profile.png" width={20}/>
           <span>Logout</span>
         </button>
       </div>
