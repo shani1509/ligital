@@ -7,7 +7,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="overflow-x-hidden w-full relative min-h-screen flex flex-col">
       <div className="absolute top-6 left-6 md:top-8 md:left-8 z-50">
         <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
@@ -23,6 +23,6 @@ export default function PublicLayout({
         </Link>
       </div>
       {children}
-    </>
+    </div>
   );
 }

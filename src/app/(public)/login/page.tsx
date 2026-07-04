@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1B5E20] via-[#2E7D32] to-[#4CAF50] flex items-center justify-center p-4">
+    <div className="relative overflow-hidden min-h-screen w-full bg-gradient-to-br from-[#1B5E20] via-[#2E7D32] to-[#4CAF50] flex flex-col items-center justify-center p-4">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full translate-y-36 -translate-x-36" />
