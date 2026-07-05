@@ -4,6 +4,7 @@ import React from 'react';
 import Card from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 import type { AlertItem } from '@/types';
+import Image from 'next/image';
 
 interface AlertsPanelProps {
   alerts: AlertItem[];
@@ -25,7 +26,10 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
   return (
     <Card className="animate-fade-in">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">⚠️ Expiring Soon</h3>
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+          <Image src="/expire.png" alt="Expiring Soon" width={24} height={24} className="object-contain" />
+          Expiring Soon
+        </h3>
         {alerts.length > 0 && (
           <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-1 rounded-full">
             {alerts.length} alerts

@@ -51,7 +51,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(apiError('Student not found'), { status: 404 });
     }
 
-    return NextResponse.json(apiSuccess(student), { status: 200 });
+    // Decrypt Aadhar if it exists
+    let decryptedAadhar = student.aadharNumber;
+    if (decryptedAadhar) {
+      try {
+        const { decryptAadhar } = await import('@/lib/crypto');
+        decryptedAadhar = decryptAadhar(decryptedAadhar);
+      } catch (err) {
+        console.error('Failed to decrypt Aadhar', err);
+      }
+    }
+
+    const responseData = {
+      ...student,
+      aadharNumber: decryptedAadhar,
+    };
+
+    return NextResponse.json(apiSuccess(responseData), { status: 200 });
   } catch (error) {
     console.error('Get student error:', error);
     return NextResponse.json(
@@ -148,6 +164,52 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  try {
+    const { libraryId } = getAuthHeaders(request);
+    if (!libraryId) {
+      return NextResponse.json(apiError('Unauthorized'), { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    
+    // Extract only phone and email to prevent malicious updates
+    const phone = body.phone;
+    const email = body.email;
+
+    if (!phone) {
+      return NextResponse.json(apiError('Phone number is required'), { status: 400 });
+    }
+
+    // Verify student exists and belongs to library
+    const existingStudent = await prisma.student.findFirst({
+      where: { id, libraryId },
+      select: { id: true },
+    });
+
+    if (!existingStudent) {
+      return NextResponse.json(apiError('Student not found'), { status: 404 });
+    }
+
+    const updatedStudent = await prisma.student.update({
+      where: { id },
+      data: { phone, email: email || null },
+    });
+
+    return NextResponse.json(
+      apiSuccess(updatedStudent, 'Profile updated successfully'),
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Patch student error:', error);
+    return NextResponse.json(
+      apiError('An unexpected error occurred.'),
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { libraryId } = getAuthHeaders(request);
@@ -186,15 +248,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(apiError('Student not found'), { status: 404 });
     }
 
-    // Mark as LEFT and free their seat in a transaction
+    // Permanently delete student and free their seat in a transaction
     await prisma.$transaction(async (tx) => {
-      // 1. Mark student as LEFT
-      await tx.student.update({
-        where: { id },
-        data: { status: 'LEFT' },
-      });
-
-      // 2. Free their seat
+      // 1. Free their seat if they have one
       if (student.seat) {
         await tx.seat.update({
           where: { id: student.seat.id },
@@ -205,19 +261,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         });
       }
 
-      // 3. Cancel any active subscriptions
-      await tx.subscription.updateMany({
-        where: {
-          studentId: id,
-          libraryId,
-          status: 'ACTIVE',
-        },
-        data: { status: 'CANCELLED' },
+      // 2. Permanently delete the student (subscriptions cascade automatically)
+      await tx.student.delete({
+        where: { id },
       });
     });
 
     return NextResponse.json(
-      apiSuccess(null, 'Student marked as left and seat freed'),
+      apiSuccess(null, 'Student permanently deleted'),
       { status: 200 }
     );
   } catch (error) {

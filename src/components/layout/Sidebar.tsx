@@ -14,8 +14,8 @@ const menuItems = [
     items: [
       { label: 'Dashboard', href: '/dashboard', icon: '/main_dashboard.png' },
       { label: 'Students', href: '/students', icon: '/student.png' },
-      { label: 'Add Student', href: '/students/add', icon: '/add_students.png' },
-      { label: 'Plans', href: '/plans', icon: '/plans_dashboard.png' },
+      { label: 'Add Student', href: '/students/add', icon: '/x.png' },
+      { label: 'Plans', href: '/plans', icon: '/add_plans.png' },
       { label: 'Seats', href: '/seats', icon: '/seat_dashboard.png' },
       { label: 'Reports', href: '/reports', icon: '/report_dashboard.png' },
     ],

@@ -32,7 +32,6 @@ enum SeatStatus {
 enum StudentStatus {
   ACTIVE
   EXPIRED
-  LEFT
 }
 
 enum PlatformPlanType {
@@ -144,6 +143,8 @@ model Student {
   email     String?
   phone     String
   address   String?
+  aadharNumber String?
+  photoUrl     String?
   status    StudentStatus @default(EXPIRED)
   joinDate  DateTime      @default(now())
 

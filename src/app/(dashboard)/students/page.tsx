@@ -1,19 +1,20 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useMutation } from '@/hooks/useFetch';
 import Badge from '@/components/ui/Badge';
-import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatDate, formatCurrency } from '@/lib/utils';
+import StudentAvatar from '@/components/ui/StudentAvatar';
 
 interface Student {
   id: string;
   name: string;
   phone: string;
   email: string | null;
-  status: 'ACTIVE' | 'EXPIRED' | 'LEFT';
+  photoUrl: string | null;
+  status: 'ACTIVE' | 'EXPIRED';
   joinDate: string;
   seat: { seatNumber: number } | null;
   subscriptions: {
@@ -39,8 +40,7 @@ export default function StudentsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [deleteModal, setDeleteModal] = useState<Student | null>(null);
-  const { mutate, loading: deleting } = useMutation();
+  const router = useRouter();
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -62,20 +62,10 @@ export default function StudentsPage() {
 
   useEffect(() => { fetchStudents(); }, [fetchStudents]);
 
-  const handleDelete = async () => {
-    if (!deleteModal) return;
-    const result = await mutate(`/api/students/${deleteModal.id}`, 'DELETE');
-    if (result.success) {
-      setDeleteModal(null);
-      fetchStudents();
-    }
-  };
-
   const statusBadgeVariant = (s: string) => {
     switch (s) {
       case 'ACTIVE': return 'success' as const;
       case 'EXPIRED': return 'danger' as const;
-      case 'LEFT': return 'default' as const;
       default: return 'default' as const;
     }
   };
@@ -126,7 +116,6 @@ export default function StudentsPage() {
           <option value="">All Statuses</option>
           <option value="ACTIVE">Active</option>
           <option value="EXPIRED">Expired</option>
-          <option value="LEFT">Left</option>
         </select>
       </div>
 
@@ -159,19 +148,20 @@ export default function StudentsPage() {
                 <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
                 <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Plan</th>
                 <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Expiry</th>
-                <th className="px-6 py-3.5 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {students.map((student) => {
                 const latestSub = student.subscriptions?.[0];
                 return (
-                  <tr key={student.id} className="transition-colors hover:bg-gray-50/50">
+                  <tr 
+                    key={student.id} 
+                    onClick={() => router.push(`/students/${student.id}`)}
+                    className="transition-colors cursor-pointer hover:bg-gray-50/50"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E8F5E9] text-sm font-semibold text-[#1B5E20]">
-                          {student.name.charAt(0).toUpperCase()}
-                        </div>
+                        <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="md" />
                         <div>
                           <p className="text-sm font-medium text-gray-900">{student.name}</p>
                           {student.email && <p className="text-xs text-gray-400">{student.email}</p>}
@@ -188,18 +178,6 @@ export default function StudentsPage() {
                     <td className="px-6 py-4 text-sm text-gray-600">{latestSub?.plan?.name ?? '—'}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {latestSub ? formatDate(latestSub.endDate) : '—'}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        id={`btn-delete-${student.id}`}
-                        onClick={() => setDeleteModal(student)}
-                        className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                        title="Remove student"
-                      >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
                     </td>
                   </tr>
                 );
@@ -233,27 +211,6 @@ export default function StudentsPage() {
           </div>
         )}
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {deleteModal && (
-        <Modal
-          isOpen={true}
-          onClose={() => setDeleteModal(null)}
-          title="Remove Student"
-        >
-          <p className="text-sm text-gray-600">
-            Are you sure you want to remove <strong>{deleteModal.name}</strong>? This will mark them as &quot;Left&quot; and free their seat.
-          </p>
-          <div className="mt-6 flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setDeleteModal(null)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete} loading={deleting}>
-              Remove Student
-            </Button>
-          </div>
-        </Modal>
-      )}
     </div>
   );
 }

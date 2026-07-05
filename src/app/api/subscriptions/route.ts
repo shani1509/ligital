@@ -146,9 +146,6 @@ export async function POST(request: NextRequest) {
         throw new Error('Student not found.');
       }
 
-      if (student.status === 'LEFT') {
-        throw new Error('Cannot create subscription for a student who has left.');
-      }
 
       // 2. Verify plan belongs to this library and is active
       const plan = await tx.plan.findFirst({

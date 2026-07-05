@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { createStudentSchema } from '@/lib/validation';
 import { apiSuccess, apiError, addDays } from '@/lib/utils';
+import fs from 'fs/promises';
+import path from 'path';
 
 function getAuthHeaders(request: NextRequest) {
   return {
@@ -133,8 +135,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const parsed = createStudentSchema.safeParse(body);
+    // Parse FormData for file upload support
+    const formData = await request.formData();
+
+    // Extract text fields from FormData
+    const rawBody: Record<string, unknown> = {
+      name: formData.get('name') as string || '',
+      email: formData.get('email') as string || '',
+      phone: formData.get('phone') as string || '',
+      address: formData.get('address') as string || '',
+      aadharNumber: formData.get('aadharNumber') as string || '',
+      joinDate: formData.get('joinDate') as string || '',
+    };
+
+    // Parse numeric/uuid fields
+    const seatNumberStr = formData.get('seatNumber') as string;
+    if (seatNumberStr) rawBody.seatNumber = parseInt(seatNumberStr, 10);
+
+    const planIdStr = formData.get('planId') as string;
+    if (planIdStr) rawBody.planId = planIdStr;
+
+    // Validate with Zod
+    const parsed = createStudentSchema.safeParse(rawBody);
 
     if (!parsed.success) {
       const errors: Record<string, string[]> = {};
@@ -146,7 +168,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(apiError('Validation failed', errors), { status: 400 });
     }
 
-    const { name, email, phone, address, seatNumber, planId } = parsed.data;
+    const { name, email, phone, address, aadharNumber, joinDate, seatNumber, planId } = parsed.data;
+
+    // Handle photo upload
+    let photoUrl: string | null = null;
+    const photoFile = formData.get('photo') as File | null;
+    if (photoFile && photoFile.size > 0) {
+      // Validate file type
+      const fileName = photoFile.name.toLowerCase();
+      if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg')) {
+        return NextResponse.json(
+          apiError('Photo must be a .jpg or .jpeg file'),
+          { status: 400 }
+        );
+      }
+
+      // Validate file size (max 5MB)
+      if (photoFile.size > 5 * 1024 * 1024) {
+        return NextResponse.json(
+          apiError('Photo must be under 5MB'),
+          { status: 400 }
+        );
+      }
+
+      // Save file to public/uploads/students/
+      const { randomUUID } = await import('crypto');
+      const photoId = randomUUID();
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'students');
+
+      // Ensure directory exists
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const photoPath = path.join(uploadDir, `${photoId}.jpg`);
+      const buffer = Buffer.from(await photoFile.arrayBuffer());
+      await fs.writeFile(photoPath, buffer);
+
+      photoUrl = `/uploads/students/${photoId}.jpg`;
+    }
+
+    // Encrypt Aadhar if provided
+    let encryptedAadhar: string | null = null;
+    if (aadharNumber && aadharNumber.length === 12) {
+      const { encryptAadhar } = await import('@/lib/crypto');
+      encryptedAadhar = encryptAadhar(aadharNumber);
+    }
+
+    // Parse joinDate
+    const studentJoinDate = joinDate ? new Date(joinDate) : new Date();
 
     // Create student in a transaction for atomicity
     const result = await prisma.$transaction(async (tx) => {
@@ -158,13 +226,16 @@ export async function POST(request: NextRequest) {
           email: email || null,
           phone,
           address: address || null,
+          aadharNumber: encryptedAadhar,
+          photoUrl,
+          joinDate: studentJoinDate,
           status: planId ? 'ACTIVE' : 'EXPIRED',
         },
       });
 
       // 2. Handle seat assignment
       if (seatNumber) {
-        // Assign specific seat — use findFirst with lock-like uniqueness check
+        // Assign specific seat
         const seat = await tx.seat.findUnique({
           where: {
             libraryId_seatNumber: {
@@ -207,8 +278,9 @@ export async function POST(request: NextRequest) {
               studentId: student.id,
             },
           });
+        } else {
+          throw new Error('No available seats in the library.');
         }
-        // If no seats available, student is created without a seat
       }
 
       // 3. Handle plan subscription

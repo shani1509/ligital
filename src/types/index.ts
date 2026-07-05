@@ -53,6 +53,8 @@ export interface StudentWithSeat {
   email: string | null;
   phone: string;
   address: string | null;
+  aadharNumber: string | null;
+  photoUrl: string | null;
   status: StudentStatus;
   joinDate: string;
   createdAt: string;

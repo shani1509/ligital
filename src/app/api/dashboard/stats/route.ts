@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
       totalRevenueResult,
       monthlyRevenueResult,
     ] = await Promise.all([
-      // Total students (not LEFT)
+      // Total students
       prisma.student.count({
-        where: { libraryId, status: { not: 'LEFT' } },
+        where: { libraryId },
       }),
 
       // Active students

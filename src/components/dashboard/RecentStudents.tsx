@@ -3,34 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
-import Badge from '@/components/ui/Badge';
-import { formatDate } from '@/lib/utils';
+import { useFetch } from '@/hooks/useFetch';
 import type { StudentWithSeat } from '@/types';
+import StudentAvatar from '@/components/ui/StudentAvatar';
 
-interface RecentStudentsProps {
-  students?: StudentWithSeat[];
-  loading?: boolean;
-}
+export default function RecentStudents() {
+  const { data: students, loading } = useFetch<StudentWithSeat[]>('/api/dashboard/recent-students');
 
-function getStatusVariant(status: string) {
-  switch (status) {
-    case 'ACTIVE':
-      return 'success' as const;
-    case 'EXPIRED':
-      return 'danger' as const;
-    case 'LEFT':
-      return 'default' as const;
-    default:
-      return 'default' as const;
-  }
-}
-
-export default function RecentStudents({ students = [], loading }: RecentStudentsProps) {
   if (loading) {
     return (
       <Card className="animate-fade-in">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Recent Students</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Today&apos;s New Admissions</h3>
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -47,10 +31,12 @@ export default function RecentStudents({ students = [], loading }: RecentStudent
     );
   }
 
+  const list = students ?? [];
+
   return (
     <Card className="animate-fade-in">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Recent Students</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Today&apos;s New Admissions</h3>
         <Link
           href="/students/add"
           id="recent-add-student"
@@ -60,52 +46,63 @@ export default function RecentStudents({ students = [], loading }: RecentStudent
         </Link>
       </div>
 
-      {students.length === 0 ? (
-        <div className="text-center py-8">
-          <span className="text-3xl mb-2 block">🎓</span>
-          <p className="text-sm text-gray-400">No students yet</p>
+      {list.length === 0 ? (
+        <div className="flex items-center justify-center h-32 text-sm text-gray-500">
+          No new enrollments today.
         </div>
       ) : (
-        <ul className="space-y-3">
-          {students.slice(0, 5).map((student) => {
-            const initials = student.name
-              .split(' ')
-              .map((n) => n[0])
-              .join('')
-              .toUpperCase()
-              .slice(0, 2);
+        <div className="overflow-y-auto max-h-72 -mx-1 px-1">
+          {/* Header Row */}
+          <div className="flex items-center gap-3 px-2 pb-2 border-b border-gray-100 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+            <div className="flex-1 min-w-0">Name / Mobile</div>
+            <div className="w-16 text-center flex-shrink-0">Seat</div>
+            <div className="w-24 text-right flex-shrink-0">Plan</div>
+          </div>
 
-            return (
-              <li
-                key={student.id}
-                className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors"
-              >
-                {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-[#E8F5E9] text-[#1B5E20] font-bold text-xs flex items-center justify-center flex-shrink-0">
-                  {initials}
-                </div>
+          {/* Student Rows */}
+          <ul className="divide-y divide-gray-50">
+            {list.map((student) => {
+              const seatLabel = student.seat
+                ? `#${student.seat.seatNumber}`
+                : '—';
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">
-                    {student.name}
-                  </p>
-                  <p className="text-xs text-gray-400">{student.phone}</p>
-                </div>
+              const planName =
+                student.subscriptions?.[0]?.plan?.name ?? '—';
 
-                {/* Status + Date */}
-                <div className="text-right flex-shrink-0">
-                  <Badge variant={getStatusVariant(student.status)} dot>
-                    {student.status}
-                  </Badge>
-                  <p className="text-[10px] text-gray-400 mt-1">
-                    {formatDate(student.joinDate)}
-                  </p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+              return (
+                <li key={student.id}>
+                  <Link
+                    href={`/students/${student.id}`}
+                    className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
+                  >
+                    {/* Avatar + Name/Mobile */}
+                    <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">
+                        {student.name}
+                      </p>
+                      <p className="text-xs text-gray-400">{student.phone}</p>
+                    </div>
+
+                    {/* Seat */}
+                    <div className="w-16 text-center flex-shrink-0">
+                      <span className="text-xs font-medium text-gray-600">
+                        {seatLabel}
+                      </span>
+                    </div>
+
+                    {/* Plan */}
+                    <div className="w-24 text-right flex-shrink-0">
+                      <span className="text-xs font-medium text-gray-600 truncate block">
+                        {planName}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </Card>
   );

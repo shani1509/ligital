@@ -71,6 +71,12 @@ export const createStudentSchema = z.object({
     .max(15, 'Phone must be under 15 digits')
     .regex(/^[+]?[\d\s-]+$/, 'Invalid phone format'),
   address: z.string().max(500).optional().or(z.literal('')),
+  aadharNumber: z
+    .string()
+    .regex(/^\d{12}$/, 'Aadhar number must be exactly 12 digits')
+    .optional()
+    .or(z.literal('')),
+  joinDate: z.string().optional().or(z.literal('')),
   seatNumber: z.number().int().positive().optional(),
   planId: z.string().uuid().optional().or(z.literal('')),
 });
