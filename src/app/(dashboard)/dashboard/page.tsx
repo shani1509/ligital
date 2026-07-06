@@ -8,6 +8,7 @@ import RecentStudents from '@/components/dashboard/RecentStudents';
 import AlertsPanel from '@/components/dashboard/AlertsPanel';
 import QuickActions from '@/components/dashboard/QuickActions';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { DashboardStats, ChartDataPoint, AlertItem } from '@/types';
 
 export default function DashboardPage() {
@@ -53,7 +54,7 @@ export default function DashboardPage() {
             title="Total Students"
             value={stats?.totalStudents ?? 0}
             trend="Increased from last month"
-            icon="↗"
+            icon={<Image alt="Total Students" className="inline-block flex-shrink-0" height={24} src="/total.png" width={24}/>}
             variant="primary"
             loading={statsLoading}
           />
@@ -63,7 +64,7 @@ export default function DashboardPage() {
             title="Active Students"
             value={stats?.activeStudents ?? 0}
             trend="Currently active"
-            icon="↗"
+            icon={<Image alt="Active Students" className="inline-block flex-shrink-0" height={24} src="/active.png" width={24}/>}
             loading={statsLoading}
           />
         </div>
@@ -72,7 +73,7 @@ export default function DashboardPage() {
             title="Expiring Soon"
             value={stats?.expiringSoon ?? 0}
             trend="Within 7 days"
-            icon="⚠"
+            icon={<Image alt="Expiring Soon" className="inline-block flex-shrink-0" height={24} src="/alert3.png" width={24}/>}
             loading={statsLoading}
           />
         </div>
@@ -81,7 +82,7 @@ export default function DashboardPage() {
             title="Expired Students"
             value={stats?.expiredStudents ?? 0}
             trend="Need renewal"
-            icon="↘"
+            icon={<Image alt="Expired Students" className="inline-block flex-shrink-0" height={24} src="/expired.png" width={24}/>}
             loading={statsLoading}
           />
         </div>

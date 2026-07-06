@@ -16,15 +16,15 @@ const menuItems = [
       { label: 'Students', href: '/students', icon: '/student.png' },
       { label: 'Add Student', href: '/students/add', icon: '/x.png' },
       { label: 'Plans', href: '/plans', icon: '/add_plans.png' },
-      { label: 'Seats', href: '/seats', icon: '/seat_dashboard.png' },
-      { label: 'Reports', href: '/reports', icon: '/report_dashboard.png' },
+      { label: 'Seats', href: '/seats', icon: '/seat_n.png' },
+      { label: 'Reports', href: '/reports', icon: '/stats.png' },
     ],
   },
   {
     section: 'GENERAL',
     items: [
-      { label: 'Settings', href: '/settings', icon: '/setting.png' },
-      { label: 'Billing', href: '/billing', icon: '/billing.png' },
+      { label: 'Settings', href: '/settings', icon: '/setting_nav.png' },
+      { label: 'Billing', href: '/billing_nav', icon: '/billing.png' },
     ],
   },
 ];

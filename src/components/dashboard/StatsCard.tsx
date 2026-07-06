@@ -8,7 +8,7 @@ interface StatsCardProps {
   value: string | number;
   trend?: string;
   trendUp?: boolean;
-  icon: string;
+  icon: React.ReactNode;
   primary?: boolean;
   variant?: 'primary' | 'default';
   loading?: boolean;

@@ -15,7 +15,10 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
   if (loading) {
     return (
       <Card className="animate-fade-in">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">⚠️ Expiring Soon</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <Image alt="Warning" className="inline-block flex-shrink-0" height={18} src="/alert3.png" width={18}/>
+          Expiring Soon
+        </h3>
         <div className="h-[200px] flex items-center justify-center">
           <div className="w-8 h-8 border-4 border-[#C8E6C9] border-t-[#4CAF50] rounded-full animate-spin" />
         </div>
@@ -27,7 +30,7 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
     <Card className="animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <Image src="/expire.png" alt="Expiring Soon" width={24} height={24} className="object-contain" />
+          <Image src="/alert3.png" alt="Expiring Soon" width={18} height={18} className="object-contain" />
           Expiring Soon
         </h3>
         {alerts.length > 0 && (
@@ -39,7 +42,9 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
 
       {alerts.length === 0 ? (
         <div className="text-center py-8">
-          <span className="text-3xl mb-2 block">✅</span>
+          <div className="flex justify-center mb-3">
+            <Image alt="Success" className="inline-block flex-shrink-0" height={24} src="/tik.gif" width={24}/>
+          </div>
           <p className="text-sm text-gray-400">No expiring subscriptions</p>
         </div>
       ) : (
