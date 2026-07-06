@@ -24,7 +24,7 @@ const menuItems = [
     section: 'GENERAL',
     items: [
       { label: 'Settings', href: '/settings', icon: '/setting_nav.png' },
-      { label: 'Billing', href: '/billing_nav', icon: '/billing.png' },
+      { label: 'Billing', href: '/billing', icon: '/subs.png' },
     ],
   },
 ];
