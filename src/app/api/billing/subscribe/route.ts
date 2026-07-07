@@ -35,8 +35,34 @@ export async function POST(request: NextRequest) {
     const { planType } = parsed.data;
     const planConfig = PLATFORM_PLANS[planType];
 
-    const startDate = new Date();
-    const endDate = addDays(startDate, planConfig.durationDays);
+    // Fetch the current library status and billing to calculate new expiry
+    const library = await prisma.library.findUnique({
+      where: { id: libraryId },
+      include: { billing: true },
+    });
+
+    if (!library) {
+      return NextResponse.json(apiError('Library not found'), { status: 404 });
+    }
+
+    const now = new Date();
+    let currentExpiry = now;
+    if (library.billing && library.billing.status !== 'CANCELLED') {
+      currentExpiry = new Date(library.billing.endDate);
+    } else if (library.trialEndsAt) {
+      currentExpiry = new Date(library.trialEndsAt);
+    }
+
+    let endDate: Date;
+    // RULE: Recharge during active paid plan. Add to the existing expiry date.
+    if (library.status === 'ACTIVE' && library.billing && currentExpiry > now) {
+      endDate = addDays(currentExpiry, planConfig.durationDays);
+    } else {
+      // RULE: Free Trial or Expired status. Ignore old days, start fresh from today.
+      endDate = addDays(now, planConfig.durationDays);
+    }
+
+    const startDate = now;
 
     // Mock payment: always succeeds
     // In production, this would integrate with Razorpay/Stripe

@@ -108,7 +108,7 @@ export default function RegisterPage() {
 
             <div className="space-y-4">
               {[
-                { icon: '/trial.png', text: '14-day free trial, no credit card required' },
+                { icon: '/trial.png', text: '7-day free trial, no credit card required' },
                 { icon: '/report_dashboard.png', text: 'Complete dashboard with real-time analytics' },
                 { icon: '/seat_dashboard.png', text: 'Visual seat management system' },
                 { icon: '/mobile_dashboard.png', text: 'Mobile-friendly interface' },
@@ -124,7 +124,7 @@ export default function RegisterPage() {
           {/* Right: Registration Form */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <h2 className="text-xl font-bold text-gray-800 mb-1">Create your account</h2>
-            <p className="text-sm text-gray-400 mb-6">Start your 14-day free trial</p>
+            <p className="text-sm text-gray-400 mb-6">Start your 7-day free trial</p>
 
             {error && (
               <div className="mb-5 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600 flex items-center gap-2">

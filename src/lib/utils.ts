@@ -90,9 +90,9 @@ export function addDays(date: Date, days: number): Date {
 // ─── Platform Billing Prices ────────────────────────────
 
 export const PLATFORM_PLANS = {
-  MONTHLY: { label: 'Monthly', pricePaise: 19900, durationDays: 30 },
-  QUARTERLY: { label: 'Quarterly', pricePaise: 39900, durationDays: 90 },
-  YEARLY: { label: 'Yearly', pricePaise: 99900, durationDays: 365 },
+  MONTHLY: { label: 'Basic', pricePaise: 19900, durationDays: 30 },
+  QUARTERLY: { label: 'Standard', pricePaise: 49900, durationDays: 90 },
+  YEARLY: { label: 'Premium', pricePaise: 149900, durationDays: 365 },
 } as const;
 
 // ─── String Utilities ───────────────────────────────────

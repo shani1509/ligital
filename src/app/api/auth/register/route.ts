@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Calculate trial end date (30 days from now)
+    // Calculate trial end date (7 days from now)
     const trialEndsAt = new Date();
-    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 7);
 
     // Create library + user + seats + platformBilling in a single transaction
     await prisma.$transaction(async (tx) => {
