@@ -91,7 +91,7 @@ export default function StudentsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 rounded-xl bg-white p-4 shadow-md">
+      <div className="flex flex-col sm:flex-row gap-4 rounded-xl bg-white p-4 shadow-md">
         <div className="flex-1 min-w-[200px]">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -139,8 +139,9 @@ export default function StudentsPage() {
             </Link>
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
+          <div className="w-full overflow-x-auto pb-4">
+            <table className="w-full min-w-[800px]">
+              <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
                 <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Name</th>
                 <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Phone</th>
@@ -184,6 +185,7 @@ export default function StudentsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
 
         {/* Pagination */}

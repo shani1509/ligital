@@ -79,8 +79,8 @@ export default function StatsCard({
         {/* Icon / Arrow */}
         <div
           className={cn(
-            'w-10 h-10 rounded-xl flex items-center justify-center text-lg',
-            isPrimary ? 'bg-white/20' : 'bg-[#E8F5E9]'
+            'w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-lg flex-shrink-0',
+            isPrimary ? 'bg-white/20 text-white' : 'bg-green-50 text-[#1B5E20]'
           )}
         >
           {icon}

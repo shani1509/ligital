@@ -8,7 +8,7 @@ import RecentStudents from '@/components/dashboard/RecentStudents';
 import AlertsPanel from '@/components/dashboard/AlertsPanel';
 import QuickActions from '@/components/dashboard/QuickActions';
 import Link from 'next/link';
-import Image from 'next/image';
+import { Users, UserCheck, AlertTriangle, UserX } from 'lucide-react';
 import type { DashboardStats, ChartDataPoint, AlertItem } from '@/types';
 
 export default function DashboardPage() {
@@ -19,14 +19,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="mt-1 text-sm text-gray-500">
             Manage your library with ease.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <Link
             href="/students/add"
             id="btn-add-student-top"
@@ -48,13 +48,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         <div className="animate-fade-in" style={{ animationDelay: '0.05s' }}>
           <StatsCard
             title="Total Students"
             value={stats?.totalStudents ?? 0}
             trend="Increased from last month"
-            icon={<Image alt="Total Students" className="inline-block flex-shrink-0" height={24} src="/total.png" width={24}/>}
+            icon={<Users className="w-5 h-5 md:w-6 md:h-6" />}
             variant="primary"
             loading={statsLoading}
           />
@@ -64,7 +64,7 @@ export default function DashboardPage() {
             title="Active Students"
             value={stats?.activeStudents ?? 0}
             trend="Currently active"
-            icon={<Image alt="Active Students" className="inline-block flex-shrink-0" height={24} src="/active.png" width={24}/>}
+            icon={<UserCheck className="w-5 h-5 md:w-6 md:h-6" />}
             loading={statsLoading}
           />
         </div>
@@ -73,7 +73,7 @@ export default function DashboardPage() {
             title="Expiring Soon"
             value={stats?.expiringSoon ?? 0}
             trend="Within 7 days"
-            icon={<Image alt="Expiring Soon" className="inline-block flex-shrink-0" height={24} src="/alert3.png" width={24}/>}
+            icon={<AlertTriangle className="w-5 h-5 md:w-6 md:h-6" />}
             loading={statsLoading}
           />
         </div>
@@ -82,7 +82,7 @@ export default function DashboardPage() {
             title="Expired Students"
             value={stats?.expiredStudents ?? 0}
             trend="Need renewal"
-            icon={<Image alt="Expired Students" className="inline-block flex-shrink-0" height={24} src="/expired.png" width={24}/>}
+            icon={<UserX className="w-5 h-5 md:w-6 md:h-6" />}
             loading={statsLoading}
           />
         </div>

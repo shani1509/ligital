@@ -4,7 +4,7 @@ import React from 'react';
 import Card from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 import type { AlertItem } from '@/types';
-import Image from 'next/image';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface AlertsPanelProps {
   alerts: AlertItem[];
@@ -16,7 +16,7 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
     return (
       <Card className="animate-fade-in">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <Image alt="Warning" className="inline-block flex-shrink-0" height={18} src="/alert3.png" width={18}/>
+          <AlertTriangle className="w-5 h-5 text-gray-700"/>
           Expiring Soon
         </h3>
         <div className="h-[200px] flex items-center justify-center">
@@ -30,7 +30,7 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
     <Card className="animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <Image src="/alert3.png" alt="Expiring Soon" width={18} height={18} className="object-contain" />
+          <AlertTriangle className="w-5 h-5 text-gray-700"/>
           Expiring Soon
         </h3>
         {alerts.length > 0 && (
@@ -43,7 +43,7 @@ export default function AlertsPanel({ alerts, loading }: AlertsPanelProps) {
       {alerts.length === 0 ? (
         <div className="text-center py-8">
           <div className="flex justify-center mb-3">
-            <Image alt="Success" className="inline-block flex-shrink-0" height={24} src="/tik.gif" width={24}/>
+            <CheckCircle2 className="w-8 h-8 text-green-600 mb-3"/>
           </div>
           <p className="text-sm text-gray-400">No expiring subscriptions</p>
         </div>

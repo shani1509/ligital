@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import Image from 'next/image';
+import { Library, Settings, LogOut } from 'lucide-react';
 
 interface ProfileDropdownProps {
   onClose: () => void;
@@ -15,42 +15,42 @@ export default function ProfileDropdown({ onClose }: ProfileDropdownProps) {
   return (
     <div className="absolute right-0 top-12 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 animate-scale-in z-50">
       {/* User Info */}
-      <div className="px-4 py-3 border-b border-gray-100">
-        <p className="text-sm font-semibold text-gray-800 truncate">{user?.name}</p>
-        <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+      <div className="px-4 py-3 border-b border-gray-100 pb-2 mb-2">
+        <p className="text-sm font-semibold text-gray-700 truncate">{user?.name}</p>
+        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
       </div>
 
       {/* Links */}
       <div className="py-1">
         <Link
-          href="/settings"
+          href="/settings/library"
           onClick={onClose}
-          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors cursor-pointer"
         >
-          <Image alt="Settings" className="object-contain" height={20} src="/setting_profile.png" width={20}/>
-          <span>Settings</span>
+          <Library className="w-5 h-5" />
+          <span>My Library</span>
         </Link>
         <Link
-          href="/billing"
+          href="/settings"
           onClick={onClose}
-          className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors cursor-pointer"
         >
-          <Image alt="Billing" className="object-contain" height={20} src="/billing_profile.png" width={20}/>
-          <span>Billing</span>
+          <Settings className="w-5 h-5" />
+          <span>Settings</span>
         </Link>
       </div>
 
       {/* Logout */}
-      <div className="border-t border-gray-100 py-1">
+      <div className="border-t border-gray-100 mt-2 py-1">
         <button
           id="dropdown-logout"
           onClick={() => {
             onClose();
             logout();
           }}
-          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+          className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
         >
-          <Image alt="Logout" className="object-contain" height={20} src="/logout_profile.png" width={20}/>
+          <LogOut className="w-5 h-5 text-red-600" />
           <span>Logout</span>
         </button>
       </div>

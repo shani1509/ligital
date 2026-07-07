@@ -57,7 +57,7 @@ export default function DashboardLayout({
         />
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           {/* Expired Lock Overlay */}
           {isExpired && !isAllowedRoute && (
             <div className="fixed inset-0 z-40 ml-[260px] mt-16 flex items-center justify-center bg-black/50 backdrop-blur-sm">

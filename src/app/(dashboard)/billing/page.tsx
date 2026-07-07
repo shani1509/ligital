@@ -144,12 +144,12 @@ export default function BillingPage() {
     <div className="space-y-10 animate-fade-in font-sans pb-16">
 
       {/* ── 1. Page Header & Actions ─────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Billing</h1>
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 tracking-tight">Billing</h1>
           <p className="mt-2 text-base text-gray-500">Manage your current plan and payment history.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <button className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:shadow-md hover:scale-[1.02]">
             <Wallet className="w-4 h-4" />
             Payment History
@@ -272,7 +272,7 @@ export default function BillingPage() {
           {/* Carousel Container */}
           <div 
             ref={scrollContainerRef}
-            className="flex overflow-x-auto gap-8 pt-6 pb-12 px-4 md:px-10 snap-x snap-mandatory scroll-smooth hide-scrollbar w-full items-center"
+            className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full px-4 md:px-10 pb-12 pt-6"
           >
             {planCards.map((plan, idx) => {
               const isSelected = selectedUiPlan === plan.key;
@@ -282,7 +282,7 @@ export default function BillingPage() {
                 <div
                   key={plan.key}
                   onClick={() => setSelectedUiPlan(plan.key)}
-                  className={`relative flex flex-col p-8 rounded-[24px] bg-white transition-all duration-300 ease-out snap-center flex-shrink-0 cursor-pointer w-[340px] ${
+                  className={`relative flex flex-col p-8 rounded-[24px] bg-white transition-all duration-300 ease-out cursor-pointer w-full lg:w-[340px] ${
                     isSelected
                       ? 'border-2 border-[#1B5E20] shadow-[0_20px_40px_-15px_rgba(27,94,32,0.2)] scale-[1.03] z-10'
                       : 'border border-gray-100 shadow-sm hover:border-[#1B5E20]/30 hover:-translate-y-1 hover:shadow-xl scale-95 opacity-90 hover:opacity-100'
