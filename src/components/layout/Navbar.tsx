@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import ProfileDropdown from './ProfileDropdown';
+import { Bell, Search, Menu, X } from 'lucide-react';
 
 export default function Navbar({ 
   onToggleSidebar, 
@@ -34,78 +35,65 @@ export default function Navbar({
     .slice(0, 2) || 'U';
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-30 h-20 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-[0_4px_30px_rgba(0,0,0,0.02)] flex items-center justify-between px-4 md:px-8 transition-all">
       {/* Left: Hamburger + Search */}
-      <div className="flex items-center flex-1 gap-2 md:gap-4 max-w-md">
+      <div className="flex items-center flex-1 gap-3 md:gap-6 max-w-xl">
         <button 
           onClick={onToggleSidebar}
-          className="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+          className="md:hidden p-2.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-emerald-100 shadow-sm"
           aria-label="Toggle sidebar"
         >
-          {isSidebarOpen ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-          )}
+          {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
-        <div className="relative w-full">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+        <div className="relative w-full group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
           <input
             id="navbar-search"
             type="text"
-            placeholder="Search..."
-            className="w-full pl-10 pr-20 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-[#4CAF50] transition-all"
+            placeholder="Search students, plans, or invoices..."
+            className="w-full pl-11 pr-24 py-3 text-sm font-medium bg-gray-50/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/50 focus:bg-white transition-all shadow-inner placeholder:text-gray-400"
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-gray-400 bg-gray-100 rounded-md border border-gray-200">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold text-gray-400 bg-white rounded-lg border border-gray-200 shadow-sm uppercase tracking-widest pointer-events-none">
             Ctrl+F
-          </kbd>
+          </div>
         </div>
       </div>
 
       {/* Right: Notifications + Profile */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 md:gap-6 pl-4">
         {/* Notifications */}
         <button
           id="navbar-notifications"
-          className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+          className="relative p-2.5 text-gray-400 hover:text-gray-700 hover:bg-white rounded-[1.25rem] transition-all cursor-pointer border border-gray-100 shadow-sm hover:shadow-md bg-gray-50 group"
           aria-label="Notifications"
         >
-          <span className="text-xl">🔔</span>
-          <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
-            3
-          </span>
+          <Bell className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full shadow-[0_0_10px_rgba(239,68,68,0.6)] animate-pulse" />
         </button>
 
-        {/* Library Name */}
-        <div className="hidden md:block text-right">
-          <p className="text-sm font-semibold text-gray-800 truncate max-w-[150px]">
-            {user?.library.name || 'My Library'}
-          </p>
-          <p className="text-xs text-gray-400">{user?.role || 'Owner'}</p>
-        </div>
+        <div className="h-8 w-px bg-gray-200 hidden md:block" />
 
-        {/* Profile Avatar */}
-        <div className="relative" ref={profileRef}>
+        {/* Library Info & Profile Avatar */}
+        <div className="relative flex items-center gap-4" ref={profileRef}>
+          {/* Library Name */}
+          <div className="hidden md:flex flex-col items-end">
+            <p className="text-sm font-extrabold text-gray-900 tracking-tight truncate max-w-[160px]">
+              {user?.library.name || 'My Library'}
+            </p>
+            <p className="text-[10px] font-bold text-emerald-600/80 tracking-widest uppercase">
+              {user?.role || 'Owner'}
+            </p>
+          </div>
+
           <button
             id="navbar-profile"
             onClick={() => setShowProfile(!showProfile)}
-            className="w-10 h-10 rounded-full bg-[#1B5E20] text-white font-bold text-sm flex items-center justify-center hover:bg-[#2E7D32] transition-colors cursor-pointer"
+            className="w-11 h-11 rounded-[1.25rem] bg-gradient-to-br from-emerald-600 to-emerald-800 text-white font-black text-sm flex items-center justify-center hover:shadow-lg hover:shadow-emerald-900/20 hover:-translate-y-0.5 border-2 border-white transition-all cursor-pointer shadow-md"
             aria-label="User menu"
           >
             {initials}
           </button>
+          
           {showProfile && (
             <ProfileDropdown onClose={() => setShowProfile(false)} />
           )}

@@ -2,12 +2,11 @@
 
 import { useState } from 'react';
 import { useFetch, useMutation } from '@/hooks/useFetch';
-import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
 import Input from '@/components/ui/Input';
-import Badge from '@/components/ui/Badge';
 import { formatCurrency } from '@/lib/utils';
+import { Plus, Users, Edit3, PowerOff, ShieldCheck, X, CheckCircle2, ChevronRight, AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface PlanData {
   id: string;
@@ -119,79 +118,101 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-6xl space-y-8 animate-fade-in pb-16 font-sans">
+      
+      {/* 1. Page Header & Actions */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Plans</h1>
-          <p className="mt-1 text-sm text-gray-500">Create and manage subscription plans for your students.</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Subscription Plans</h1>
+          <p className="mt-3 text-base md:text-lg text-gray-500 max-w-xl">Create and manage the subscription tiers available to your students.</p>
         </div>
-        <Button onClick={() => setShowCreate(true)} id="btn-create-plan">
-          <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          Create Plan
+        <Button 
+          onClick={() => setShowCreate(true)} 
+          id="btn-create-plan"
+          className="bg-[#1B5E20] hover:bg-[#124116] shadow-lg shadow-green-900/20 hover:-translate-y-0.5 transition-all px-6 py-3.5 rounded-xl font-bold flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Create New Plan
         </Button>
       </div>
 
-      {/* Plans Grid */}
+      {/* 2. Plans Grid */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#C8E6C9] border-t-[#1B5E20]" />
+        <div className="flex flex-col items-center justify-center py-32 space-y-4">
+          <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"/>
+          <p className="text-gray-500 font-medium animate-pulse">Loading available plans...</p>
         </div>
       ) : !plans || plans.length === 0 ? (
-        <Card>
-          <div className="py-16 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F5E9]">
-              <svg className="h-8 w-8 text-[#4CAF50]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">No plans yet</h3>
-            <p className="mt-1 text-sm text-gray-500">Create your first subscription plan.</p>
+        <div className="bg-white rounded-[2rem] shadow-xl shadow-gray-200/30 border border-gray-100 py-24 text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-600 shadow-inner">
+            <ShieldCheck className="h-10 w-10" />
           </div>
-        </Card>
+          <h3 className="text-2xl font-bold text-gray-900 tracking-tight">No plans created yet</h3>
+          <p className="mt-2 text-base text-gray-500 max-w-sm mx-auto">Set up your first subscription plan to start enrolling students into your library.</p>
+          <Button 
+            onClick={() => setShowCreate(true)} 
+            className="mt-8 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 px-8 py-3 rounded-xl font-bold"
+          >
+            Create Your First Plan
+          </Button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className={`rounded-xl border-2 bg-white p-6 shadow-md transition-all hover:shadow-lg ${
-                plan.isActive ? 'border-[#C8E6C9]' : 'border-gray-200 opacity-60'
-              }`}
+              className={cn(
+                "relative flex flex-col bg-white rounded-[2rem] border transition-all duration-300 group h-full",
+                plan.isActive 
+                  ? "border-emerald-100 shadow-xl shadow-gray-200/30 hover:shadow-2xl hover:shadow-gray-200/50 hover:-translate-y-1" 
+                  : "border-gray-200 opacity-75 hover:opacity-100 shadow-sm"
+              )}
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
-                  <Badge variant={plan.isActive ? 'success' : 'default'}>
-                    {plan.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
+              {/* Optional glowing top border for active plans */}
+              {plan.isActive && (
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-t-[2rem]"></div>
+              )}
+
+              <div className="p-8 flex-1">
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-2">{plan.name}</h3>
+                    <div className={cn(
+                      "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider",
+                      plan.isActive ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-600"
+                    )}>
+                      {plan.isActive ? 'Active Plan' : 'Inactive Plan'}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-[#1B5E20]">{formatCurrency(plan.pricePaise)}</p>
-                  <p className="text-xs text-gray-400">{plan.durationDays} days</p>
+
+                <div className="mb-8">
+                  <div className="flex items-baseline gap-1 text-gray-900">
+                    <span className="text-4xl font-black tracking-tighter">{formatCurrency(plan.pricePaise)}</span>
+                  </div>
+                  <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mt-1">For {plan.durationDays} days</p>
+                </div>
+
+                <div className="flex items-center gap-3 text-sm font-medium text-gray-600 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                  <Users className="h-5 w-5 text-emerald-600" />
+                  <span className="font-bold text-gray-900">{plan._count.subscriptions}</span> active subscriber{plan._count.subscriptions !== 1 ? 's' : ''}
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                </svg>
-                {plan._count.subscriptions} subscriber{plan._count.subscriptions !== 1 ? 's' : ''}
-              </div>
-
-              <div className="mt-4 flex gap-2">
+              <div className="p-4 bg-gray-50/50 border-t border-gray-100 rounded-b-[2rem] flex gap-3">
                 <button
                   onClick={() => openEdit(plan)}
-                  className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-200 px-4 py-3 text-sm font-bold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 shadow-sm hover:shadow"
                 >
+                  <Edit3 className="w-4 h-4" />
                   Edit
                 </button>
                 {plan.isActive && (
                   <button
                     onClick={() => setDeactivatePlan(plan)}
-                    className="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-100 hover:border-red-200"
                   >
+                    <PowerOff className="w-4 h-4" />
                     Deactivate
                   </button>
                 )}
@@ -201,95 +222,216 @@ export default function PlansPage() {
         </div>
       )}
 
-      {/* Create Plan Modal — DOUBLE CONFIRMATION */}
+      {/* 3. Create Plan Modal Wizard */}
       {showCreate && (
-        <Modal
-          isOpen={true}
-          onClose={resetCreate}
-          title={
-            confirmStep === 0
-              ? 'Create New Plan'
-              : confirmStep === 1
-              ? 'Confirm Plan Details'
-              : '⚠️ Final Price Confirmation'
-          }
-        >
-          {confirmStep === 0 && (
-            <div className="space-y-4">
-              {formError && (
-                <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{formError}</div>
-              )}
-              <Input id="create-plan-name" label="Plan Name" value={planName} onChange={(e) => setPlanName(e.target.value)} placeholder="e.g. Monthly Pass" />
-              <Input id="create-plan-duration" label="Duration (days)" type="number" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="30" />
-              <Input id="create-plan-price" label="Price (₹)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="499" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden flex flex-col border border-gray-100 animate-scale-in">
+            
+            {/* Wizard Header */}
+            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+                {confirmStep === 0 && <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-sm">1</span>}
+                {confirmStep === 1 && <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-sm">2</span>}
+                {confirmStep === 2 && <span className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 text-sm">3</span>}
+                {confirmStep === 0 ? 'Plan Details' : confirmStep === 1 ? 'Review Plan' : 'Final Confirmation'}
+              </h2>
+              <button onClick={resetCreate} className="text-gray-400 hover:text-gray-900 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-          )}
 
-          {confirmStep === 1 && (
-            <div className="space-y-4">
-              <div className="rounded-lg bg-[#E8F5E9] p-4">
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div><p className="text-gray-500">Name</p><p className="font-semibold">{planName}</p></div>
-                  <div><p className="text-gray-500">Duration</p><p className="font-semibold">{duration} days</p></div>
-                  <div><p className="text-gray-500">Price</p><p className="font-semibold">₹{price}</p></div>
+            <div className="p-8">
+              {confirmStep === 0 && (
+                <div className="space-y-6">
+                  {formError && (
+                    <div className="rounded-2xl bg-red-50 p-4 text-sm font-medium text-red-700 border border-red-100 flex items-center gap-3">
+                      <AlertTriangle className="w-5 h-5 shrink-0" />
+                      {formError}
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-bold text-gray-700">Plan Name</label>
+                    <input
+                      type="text"
+                      value={planName}
+                      onChange={(e) => setPlanName(e.target.value)}
+                      placeholder="e.g. Monthly Pass"
+                      className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 text-gray-900 font-medium placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-gray-700">Duration (days)</label>
+                      <input
+                        type="number"
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                        placeholder="30"
+                        className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 text-gray-900 font-medium placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-bold text-gray-700">Price (₹)</label>
+                      <input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        placeholder="499"
+                        className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 text-gray-900 font-medium placeholder-gray-400 focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <p className="text-sm text-gray-600">Please confirm these details are correct.</p>
-            </div>
-          )}
+              )}
 
-          {confirmStep === 2 && (
-            <div className="space-y-4">
-              <div className="rounded-lg border-2 border-yellow-300 bg-yellow-50 p-4 text-center">
-                <p className="text-lg font-bold text-yellow-800">
-                  Are you sure about the pricing?
-                </p>
-                <p className="mt-2 text-3xl font-black text-[#1B5E20]">₹{price}</p>
-                <p className="mt-1 text-sm text-gray-500">for {duration} days</p>
+              {confirmStep === 1 && (
+                <div className="space-y-6">
+                  <p className="text-gray-600 font-medium">Please review the configuration below. Once created, these parameters will be locked to ensure active subscriptions aren't disrupted.</p>
+                  
+                  <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 space-y-4">
+                    <div className="flex justify-between items-center border-b border-gray-200 pb-4">
+                      <span className="text-gray-500 font-bold uppercase tracking-wider text-xs">Plan Name</span>
+                      <span className="font-bold text-gray-900 text-lg">{planName}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-gray-200 pb-4">
+                      <span className="text-gray-500 font-bold uppercase tracking-wider text-xs">Access Duration</span>
+                      <span className="font-bold text-gray-900">{duration} days</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1">
+                      <span className="text-gray-500 font-bold uppercase tracking-wider text-xs">Base Price</span>
+                      <span className="font-black text-emerald-600 text-xl">₹{price}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {confirmStep === 2 && (
+                <div className="space-y-6">
+                  <div className="rounded-2xl border-2 border-yellow-300 bg-yellow-50 p-8 text-center flex flex-col items-center">
+                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                      <ShieldCheck className="w-8 h-8 text-yellow-600" />
+                    </div>
+                    <p className="text-xl font-bold text-yellow-900 mb-2">
+                      Pricing Finalization
+                    </p>
+                    <p className="text-sm text-yellow-800/80 mb-6 max-w-xs">
+                      You are about to lock in the following rate for all students enrolling in this tier:
+                    </p>
+                    <div className="bg-white px-8 py-4 rounded-2xl shadow-sm border border-yellow-200 w-full">
+                      <p className="text-4xl font-black text-gray-900">₹{price}</p>
+                      <p className="mt-1 text-sm font-bold text-gray-500 uppercase tracking-wider">Per {duration} Days</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Wizard Actions */}
+            <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex gap-3">
+              <Button 
+                variant="secondary" 
+                onClick={confirmStep === 0 ? resetCreate : () => setConfirmStep(confirmStep - 1)}
+                className="flex-1 py-3.5 rounded-xl font-bold text-gray-700 bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
+              >
+                {confirmStep === 0 ? 'Cancel' : 'Back'}
+              </Button>
+              <Button 
+                onClick={handleCreateSubmit} 
+                loading={mutating}
+                className={cn(
+                  "flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all",
+                  confirmStep === 2 
+                    ? "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20" 
+                    : "bg-gray-900 hover:bg-black shadow-lg shadow-gray-900/20"
+                )}
+              >
+                {confirmStep === 0 ? (
+                  <>Continue <ChevronRight className="w-4 h-4" /></>
+                ) : confirmStep === 1 ? (
+                  'Confirm Setup'
+                ) : (
+                  <>Publish Plan <CheckCircle2 className="w-5 h-5" /></>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Edit Plan Modal */}
+      {editPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-gray-100 animate-scale-in">
+            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Edit Plan</h2>
+              <button onClick={() => setEditPlan(null)} className="text-gray-400 hover:text-gray-900 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-8 space-y-5">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700">Plan Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 text-gray-900 font-medium focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                />
               </div>
-              <p className="text-xs text-gray-400 text-center">
-                This price will be charged to students who subscribe to this plan. You can edit it later.
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700">Duration (days)</label>
+                <input
+                  type="number"
+                  value={editDuration}
+                  onChange={(e) => setEditDuration(e.target.value)}
+                  className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 text-gray-900 font-medium focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700">Price (₹)</label>
+                <input
+                  type="number"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  className="block w-full rounded-xl border border-gray-200 bg-gray-50 px-5 py-3.5 text-gray-900 font-medium focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                />
+              </div>
+            </div>
+            <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex gap-3 justify-end">
+              <Button variant="secondary" onClick={() => setEditPlan(null)} className="py-3 px-6 rounded-xl font-bold bg-white">Cancel</Button>
+              <Button onClick={handleEdit} loading={mutating} className="py-3 px-6 rounded-xl font-bold bg-gray-900 hover:bg-black shadow-md shadow-gray-900/20">Save Changes</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Deactivate Modal */}
+      {deactivatePlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col border border-gray-100 animate-scale-in">
+            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-red-50/50">
+              <h2 className="text-xl font-extrabold text-red-900 tracking-tight flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+                Deactivate Plan
+              </h2>
+              <button onClick={() => setDeactivatePlan(null)} className="text-gray-400 hover:text-gray-900 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-8">
+              <p className="text-base text-gray-600 font-medium leading-relaxed">
+                Are you sure you want to deactivate <strong className="text-gray-900">{deactivatePlan.name}</strong>? 
+              </p>
+              <p className="mt-4 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                Existing subscriptions will remain active until they expire, but no new students will be able to select this tier.
               </p>
             </div>
-          )}
-
-          <div className="mt-6 flex justify-end gap-3">
-            <Button variant="secondary" onClick={confirmStep === 0 ? resetCreate : () => setConfirmStep(confirmStep - 1)}>
-              {confirmStep === 0 ? 'Cancel' : 'Back'}
-            </Button>
-            <Button onClick={handleCreateSubmit} loading={mutating}>
-              {confirmStep === 0 ? 'Next' : confirmStep === 1 ? 'Confirm Details' : 'Create Plan'}
-            </Button>
+            <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex gap-3 justify-end">
+              <Button variant="secondary" onClick={() => setDeactivatePlan(null)} className="py-3 px-6 rounded-xl font-bold bg-white">Cancel</Button>
+              <Button variant="danger" onClick={handleDeactivate} loading={mutating} className="py-3 px-6 rounded-xl font-bold bg-red-600 hover:bg-red-700 shadow-md shadow-red-600/20">Deactivate</Button>
+            </div>
           </div>
-        </Modal>
-      )}
-
-      {/* Edit Plan Modal */}
-      {editPlan && (
-        <Modal isOpen={true} onClose={() => setEditPlan(null)} title="Edit Plan">
-          <div className="space-y-4">
-            <Input id="edit-plan-name" label="Plan Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
-            <Input id="edit-plan-duration" label="Duration (days)" type="number" value={editDuration} onChange={(e) => setEditDuration(e.target.value)} />
-            <Input id="edit-plan-price" label="Price (₹)" type="number" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
-          </div>
-          <div className="mt-6 flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setEditPlan(null)}>Cancel</Button>
-            <Button onClick={handleEdit} loading={mutating}>Save Changes</Button>
-          </div>
-        </Modal>
-      )}
-
-      {/* Deactivate Modal */}
-      {deactivatePlan && (
-        <Modal isOpen={true} onClose={() => setDeactivatePlan(null)} title="Deactivate Plan">
-          <p className="text-sm text-gray-600">
-            Are you sure you want to deactivate <strong>{deactivatePlan.name}</strong>? Existing subscriptions will not be affected, but no new subscriptions can use this plan.
-          </p>
-          <div className="mt-6 flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setDeactivatePlan(null)}>Cancel</Button>
-            <Button variant="danger" onClick={handleDeactivate} loading={mutating}>Deactivate</Button>
-          </div>
-        </Modal>
+        </div>
       )}
     </div>
   );

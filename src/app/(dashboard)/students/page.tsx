@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Badge from '@/components/ui/Badge';
-import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { formatDate, formatCurrency } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import StudentAvatar from '@/components/ui/StudentAvatar';
+import { Search, Filter, Plus, Users, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Student {
   id: string;
@@ -71,143 +72,178 @@ export default function StudentsPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-6xl space-y-8 animate-fade-in pb-16 font-sans">
+      
+      {/* 1. Page Header & Actions */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-          <p className="mt-1 text-sm text-gray-500">{total} students total</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
+            Students Database
+            <span className="bg-emerald-100 text-emerald-800 text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider translate-y-[-2px] shadow-sm">
+              {total} Total
+            </span>
+          </h1>
+          <p className="mt-3 text-base md:text-lg text-gray-500 max-w-xl">Search, filter, and manage your entire student directory.</p>
         </div>
         <Link
           href="/students/add"
           id="btn-add-student"
-          className="inline-flex items-center gap-2 rounded-lg bg-[#1B5E20] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#2E7D32]"
+          className="bg-[#1B5E20] hover:bg-[#124116] shadow-lg shadow-green-900/20 hover:-translate-y-0.5 transition-all px-6 py-3.5 rounded-xl font-bold text-white flex items-center justify-center gap-2"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="w-5 h-5" />
           Add Student
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 rounded-xl bg-white p-4 shadow-md">
-        <div className="flex-1 min-w-[200px]">
+      {/* 2. Filter Bar */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               id="search-students"
               type="text"
-              placeholder="Search by name or phone..."
+              placeholder="Search by name, email, or phone..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 text-sm transition-all focus:border-[#4CAF50] focus:outline-none focus:ring-2 focus:ring-[#C8E6C9]"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-4 text-gray-900 font-medium placeholder-gray-400 transition-all focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
             />
           </div>
         </div>
-        <select
-          id="filter-status"
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm transition-all focus:border-[#4CAF50] focus:outline-none focus:ring-2 focus:ring-[#C8E6C9]"
-        >
-          <option value="">All Statuses</option>
-          <option value="ACTIVE">Active</option>
-          <option value="EXPIRED">Expired</option>
-        </select>
+        <div className="sm:w-64">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Filter className="h-5 w-5 text-gray-400" />
+            </div>
+            <select
+              id="filter-status"
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 py-3.5 pl-11 pr-10 text-gray-900 font-medium transition-all focus:bg-white focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 cursor-pointer"
+            >
+              <option value="">All Statuses</option>
+              <option value="ACTIVE">Active Subscriptions</option>
+              <option value="EXPIRED">Expired Subscriptions</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl bg-white shadow-md">
+      {/* 3. Data Table */}
+      <div className="bg-white rounded-[2rem] shadow-xl shadow-gray-200/30 border border-gray-100 overflow-hidden relative">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#C8E6C9] border-t-[#1B5E20]" />
+          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+            <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"/>
+            <p className="text-gray-500 font-medium animate-pulse">Loading database records...</p>
           </div>
         ) : students.length === 0 ? (
-          <div className="py-20 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F5E9]">
-              <svg className="h-8 w-8 text-[#4CAF50]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-              </svg>
+          <div className="py-24 text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-600 shadow-inner">
+              {search || statusFilter ? <Search className="h-10 w-10" /> : <Inbox className="h-10 w-10" />}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">No students found</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by adding your first student.</p>
-            <Link href="/students/add" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#1B5E20] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2E7D32]">
-              Add Student
-            </Link>
+            <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
+              {search || statusFilter ? 'No matching records found' : 'Database is empty'}
+            </h3>
+            <p className="mt-2 text-base text-gray-500 max-w-sm mx-auto">
+              {search || statusFilter 
+                ? 'Try adjusting your search terms or filters to find what you are looking for.' 
+                : 'Get started by adding your first student to the library system.'}
+            </p>
+            {!(search || statusFilter) && (
+              <Link 
+                href="/students/add" 
+                className="mt-8 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 px-8 py-3 rounded-xl font-bold text-white transition-all"
+              >
+                Add Student
+              </Link>
+            )}
           </div>
         ) : (
           <div className="w-full overflow-x-auto pb-4">
-            <table className="w-full min-w-[800px]">
+            <table className="w-full min-w-[900px] text-left">
               <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Name</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Phone</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Seat</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Plan</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Expiry</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {students.map((student) => {
-                const latestSub = student.subscriptions?.[0];
-                return (
-                  <tr 
-                    key={student.id} 
-                    onClick={() => router.push(`/students/${student.id}`)}
-                    className="transition-colors cursor-pointer hover:bg-gray-50/50"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="md" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{student.name}</p>
-                          {student.email && <p className="text-xs text-gray-400">{student.email}</p>}
+                <tr className="border-b-2 border-gray-100 bg-gray-50/80">
+                  <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Student Profile</th>
+                  <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Contact</th>
+                  <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Seat</th>
+                  <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Status</th>
+                  <th className="px-6 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Active Plan</th>
+                  <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-gray-500">Expiry</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {students.map((student) => {
+                  const latestSub = student.subscriptions?.[0];
+                  return (
+                    <tr 
+                      key={student.id} 
+                      onClick={() => router.push(`/students/${student.id}`)}
+                      className="transition-colors cursor-pointer hover:bg-emerald-50/40 group"
+                    >
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="md" />
+                          <div>
+                            <p className="text-base font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{student.name}</p>
+                            {student.email && <p className="text-xs font-medium text-gray-500">{student.email}</p>}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{student.phone}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {student.seat ? `#${student.seat.seatNumber}` : '—'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={statusBadgeVariant(student.status)}>{student.status}</Badge>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{latestSub?.plan?.name ?? '—'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {latestSub ? formatDate(latestSub.endDate) : '—'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="px-6 py-5 text-sm font-medium text-gray-600">{student.phone}</td>
+                      <td className="px-6 py-5">
+                        {student.seat ? (
+                          <span className="inline-flex items-center justify-center px-3 py-1 rounded-lg bg-gray-100 text-gray-700 font-bold text-sm border border-gray-200">
+                            #{student.seat.seatNumber}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 font-medium text-sm">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-5">
+                        <Badge variant={statusBadgeVariant(student.status)} className="shadow-sm">
+                          {student.status}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-5">
+                        {latestSub?.plan?.name ? (
+                          <span className="text-sm font-bold text-gray-700">{latestSub.plan.name}</span>
+                        ) : (
+                          <span className="text-gray-400 font-medium text-sm">—</span>
+                        )}
+                      </td>
+                      <td className="px-8 py-5 text-sm font-medium text-gray-600">
+                        {latestSub ? formatDate(latestSub.endDate) : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
 
-        {/* Pagination */}
+        {/* 4. Pagination Footer */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
-            <p className="text-sm text-gray-500">
-              Page {page} of {totalPages}
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 bg-gray-50/50 px-8 py-4 gap-4">
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">
+              Showing Page {page} of {totalPages}
             </p>
             <div className="flex gap-2">
               <button
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 hover:border-gray-300 shadow-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
               >
-                Previous
+                <ChevronLeft className="w-4 h-4" /> Previous
               </button>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage(page + 1)}
-                className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center gap-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 hover:border-gray-300 shadow-sm disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-white"
               >
-                Next
+                Next <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>

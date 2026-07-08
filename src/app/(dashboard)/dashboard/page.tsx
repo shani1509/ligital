@@ -8,7 +8,7 @@ import RecentStudents from '@/components/dashboard/RecentStudents';
 import AlertsPanel from '@/components/dashboard/AlertsPanel';
 import QuickActions from '@/components/dashboard/QuickActions';
 import Link from 'next/link';
-import { Users, UserCheck, AlertTriangle, UserX } from 'lucide-react';
+import { Users, UserCheck, AlertTriangle, UserX, Download, Plus } from 'lucide-react';
 import type { DashboardStats, ChartDataPoint, AlertItem } from '@/types';
 
 export default function DashboardPage() {
@@ -17,44 +17,43 @@ export default function DashboardPage() {
   const { data: alerts, loading: alertsLoading } = useFetch<AlertItem[]>('/api/dashboard/alerts');
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-6xl space-y-8 animate-fade-in pb-16 font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fade-in">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-2">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage your library with ease.
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Dashboard Overview</h1>
+          <p className="mt-3 text-base md:text-lg text-gray-500 max-w-xl">
+            Monitor your library's pulse. Key metrics, revenue, and active alerts at a glance.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          <Link
-            href="/students/add"
-            id="btn-add-student-top"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#1B5E20] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#2E7D32] hover:shadow-md"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Student
-          </Link>
           <button
             id="btn-import-data"
             disabled
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-400 cursor-not-allowed"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white border border-gray-200 px-6 py-3.5 text-sm font-bold text-gray-400 cursor-not-allowed shadow-sm"
           >
-            Import Data
+            <Download className="w-4 h-4" />
+            Export Report
           </button>
+          <Link
+            href="/students/add"
+            id="btn-add-student-top"
+            className="inline-flex items-center justify-center gap-2 bg-[#1B5E20] hover:bg-[#124116] shadow-lg shadow-green-900/20 hover:-translate-y-0.5 transition-all px-6 py-3.5 rounded-xl font-bold text-white"
+          >
+            <Plus className="w-5 h-5" />
+            Add Student
+          </Link>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="animate-fade-in" style={{ animationDelay: '0.05s' }}>
           <StatsCard
             title="Total Students"
             value={stats?.totalStudents ?? 0}
-            trend="Increased from last month"
-            icon={<Users className="w-5 h-5 md:w-6 md:h-6" />}
+            trend="12% from last month"
+            icon={<Users className="w-6 h-6 md:w-8 md:h-8" />}
             variant="primary"
             loading={statsLoading}
           />
@@ -64,7 +63,7 @@ export default function DashboardPage() {
             title="Active Students"
             value={stats?.activeStudents ?? 0}
             trend="Currently active"
-            icon={<UserCheck className="w-5 h-5 md:w-6 md:h-6" />}
+            icon={<UserCheck className="w-6 h-6 md:w-8 md:h-8" />}
             loading={statsLoading}
           />
         </div>
@@ -73,7 +72,8 @@ export default function DashboardPage() {
             title="Expiring Soon"
             value={stats?.expiringSoon ?? 0}
             trend="Within 7 days"
-            icon={<AlertTriangle className="w-5 h-5 md:w-6 md:h-6" />}
+            trendUp={false}
+            icon={<AlertTriangle className="w-6 h-6 md:w-8 md:h-8" />}
             loading={statsLoading}
           />
         </div>
@@ -82,14 +82,15 @@ export default function DashboardPage() {
             title="Expired Students"
             value={stats?.expiredStudents ?? 0}
             trend="Need renewal"
-            icon={<UserX className="w-5 h-5 md:w-6 md:h-6" />}
+            trendUp={false}
+            icon={<UserX className="w-6 h-6 md:w-8 md:h-8" />}
             loading={statsLoading}
           />
         </div>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 animate-fade-in" style={{ animationDelay: '0.25s' }}>
           <RevenueChart data={chartData ?? []} loading={chartLoading} />
         </div>
@@ -99,7 +100,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="animate-fade-in" style={{ animationDelay: '0.35s' }}>
           <RecentStudents />
         </div>

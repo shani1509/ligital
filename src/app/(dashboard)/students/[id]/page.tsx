@@ -5,10 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useFetch, useMutation } from '@/hooks/useFetch';
-import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { formatDate } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface Plan {
   id: string;
@@ -130,17 +129,17 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1B5E20] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600" />
       </div>
     );
   }
 
   if (error || !student) {
     return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-600">
-        <p>{error || 'Student not found.'}</p>
-        <Link href="/students" className="mt-4 inline-block font-semibold underline">
-          Return to Students List
+      <div className="mx-auto max-w-6xl rounded-[2rem] border border-red-100 bg-red-50 p-12 text-center text-red-600 shadow-xl shadow-red-100/50">
+        <p className="text-xl font-bold">{error || 'Student not found.'}</p>
+        <Link href="/students" className="mt-6 inline-block rounded-xl bg-red-600 px-6 py-3 font-bold text-white shadow-md hover:-translate-y-0.5 hover:bg-red-700 transition-all">
+          Return to Students Database
         </Link>
       </div>
     );
@@ -158,78 +157,79 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
   ];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 animate-fade-in">
+    <div className="mx-auto max-w-6xl space-y-8 animate-fade-in pb-16 font-sans">
 
       {/* 1. Page Header & Breadcrumbs */}
       <div>
-        <nav className="mb-4 text-sm text-gray-500">
-          <Link href="/students" className="hover:text-gray-900 transition-colors">
-            Students
-          </Link>{' '}
-          <span className="mx-2">&gt;</span>{' '}
-          <span className="font-semibold text-[#1B5E20]">Student Profile</span>
+        <nav className="mb-4 text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+          <Link href="/students" className="hover:text-emerald-600 transition-colors">
+            Students Database
+          </Link>
+          <span className="text-gray-300">/</span>
+          <span className="text-gray-800">Profile</span>
         </nav>
 
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <UserIcon className="w-7 h-7 text-gray-700" /> Student Profile
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight flex items-center gap-4">
+            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100 shadow-inner">
+              <UserIcon className="w-8 h-8" />
+            </div>
+            Student Overview
           </h1>
-          <span
-            className={`rounded-full px-3 py-1 text-sm font-medium border ${isActive
-                ? 'bg-green-100 text-green-700 border-green-200'
-                : 'bg-red-100 text-red-700 border-red-200'
-              }`}
+          <div
+            className={cn(
+              "px-5 py-2.5 rounded-full text-sm font-black tracking-wide border shadow-sm flex items-center gap-2",
+              isActive ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"
+            )}
           >
-            ● {student.status.charAt(0) + student.status.slice(1).toLowerCase()}
-          </span>
+            <span className={cn("w-2.5 h-2.5 rounded-full", isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]")} />
+            {isActive ? 'ACTIVE MEMBER' : 'EXPIRED MEMBER'}
+          </div>
         </div>
       </div>
 
-      {/* 2. Top Card (Profile Information) */}
-      <Card className="flex flex-col md:flex-row overflow-hidden border border-gray-200 shadow-sm">
-
-        {/* Left Column (Avatar) */}
-        <div className="flex w-full md:w-[320px] flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-100 bg-gray-50/30">
-          <div className="relative w-40 h-40 rounded-full overflow-hidden mb-6 shadow-sm ring-4 ring-green-50">
+      {/* 2. Top Section: Avatar & Details */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Avatar Badge Card */}
+        <div className="lg:col-span-1 bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/30 border border-gray-100 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-transparent opacity-50" />
+          
+          <div className="relative z-10 w-48 h-48 rounded-full overflow-hidden mb-6 shadow-2xl shadow-gray-200/50 ring-8 ring-white group-hover:ring-emerald-50 transition-all duration-500 border-4 border-gray-50">
             {student.photoUrl ? (
               <Image
                 src={student.photoUrl}
                 alt={student.name}
                 fill
-                className="object-cover"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
-              <div className="flex w-full h-full items-center justify-center bg-[#E8F5E9] text-6xl font-bold text-[#1B5E20]">
+              <div className="flex w-full h-full items-center justify-center bg-gradient-to-br from-emerald-100 to-emerald-50 text-7xl font-black text-emerald-700">
                 {student.name.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
 
-          <span
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold border ${isActive
-                ? 'bg-[#E8F5E9] text-[#1B5E20] border-green-200'
-                : 'bg-gray-100 text-gray-600 border-gray-200'
-              }`}
-          >
-            ● {isActive ? 'Active Member' : 'Inactive Member'}
-          </span>
+          <div className="relative z-10 w-full bg-gray-50 rounded-2xl p-4 border border-gray-100">
+            <p className="text-xs font-bold text-gray-400 tracking-widest uppercase mb-1">Current Status</p>
+            <p className={cn("text-lg font-black", isActive ? "text-emerald-600" : "text-red-600")}>
+              {isActive ? 'Valid Subscription' : 'Requires Renewal'}
+            </p>
+          </div>
         </div>
 
-        {/* Right Column (Details Grid) */}
-        <div className="flex-1 w-full bg-white">
-          <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+        {/* Details Grid Card */}
+        <div className="lg:col-span-2 bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/30 border border-gray-100">
+          <h3 className="text-xl font-extrabold text-gray-900 tracking-tight mb-6">Personal Details</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {details.map((d, i) => (
-              <div
-                key={i}
-                className={`p-6 flex items-start gap-4 ${i % 2 === 0 ? 'md:border-r border-gray-100' : ''
-                  } ${i < 4 ? 'border-b border-gray-100' : ''}`}
-              >
-                <div className="mt-0.5 text-gray-400">
+              <div key={i} className="flex items-start gap-4 p-5 rounded-2xl bg-gray-50/50 border border-gray-100 hover:bg-white hover:shadow-md hover:border-gray-200 transition-all group">
+                <div className="p-2.5 rounded-xl bg-white text-gray-400 border border-gray-100 shadow-sm group-hover:text-emerald-600 group-hover:border-emerald-100 transition-colors">
                   {d.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-500 mb-1">{d.label}</p>
-                  <p className="text-sm font-semibold text-gray-900 leading-snug truncate whitespace-normal">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">{d.label}</p>
+                  <p className="text-base font-black text-gray-900 leading-snug truncate whitespace-normal">
                     {d.value}
                   </p>
                 </div>
@@ -237,55 +237,59 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
             ))}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* 3. Middle Card (Membership History) */}
-      <Card className="overflow-hidden border border-gray-200 shadow-sm">
-        <div className="p-6 border-b border-gray-100 bg-white">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <ClockIcon className="w-5 h-5 text-gray-600" /> Membership History (Last 5)
-          </h2>
+      <div className="bg-white rounded-[2rem] shadow-xl shadow-gray-200/30 border border-gray-100 overflow-hidden">
+        <div className="p-8 border-b border-gray-100 bg-gray-50/30 flex items-center gap-4">
+          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl border border-blue-100 shadow-inner">
+            <ClockIcon className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">Membership History</h2>
+            <p className="text-sm font-bold text-gray-400 tracking-wider uppercase">Last 5 records</p>
+          </div>
         </div>
 
-        <div className="overflow-x-auto bg-white">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[#F4FBF4] text-gray-700 font-semibold border-b border-gray-100">
+            <thead className="bg-white text-gray-400 font-bold tracking-widest uppercase text-[10px] border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4">Plan</th>
-                <th className="px-6 py-4">Start Date</th>
-                <th className="px-6 py-4">Expiry Date</th>
-                <th className="px-6 py-4">Seat No.</th>
-                <th className="px-6 py-4">Status</th>
+                <th className="px-8 py-5">Plan</th>
+                <th className="px-8 py-5">Start Date</th>
+                <th className="px-8 py-5">Expiry Date</th>
+                <th className="px-8 py-5">Seat No.</th>
+                <th className="px-8 py-5">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-50">
               {student.subscriptions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={5} className="px-8 py-16 text-center text-gray-500 font-bold">
                     No membership history found.
                   </td>
                 </tr>
               ) : (
-                student.subscriptions.slice(0, 5).map((sub, idx) => (
-                  <tr key={sub.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="inline-flex rounded-md bg-green-50 px-3 py-1.5 text-xs font-semibold text-[#1B5E20] border border-green-100">
+                student.subscriptions.slice(0, 5).map((sub) => (
+                  <tr key={sub.id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-8 py-5">
+                      <span className="inline-flex rounded-xl bg-gray-100 px-3 py-1.5 text-xs font-black text-gray-700 group-hover:bg-emerald-50 group-hover:text-emerald-700 transition-colors">
                         {sub.plan.name}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-700 font-medium">{formatDate(sub.startDate)}</td>
-                    <td className="px-6 py-4 text-gray-700 font-medium">{formatDate(sub.endDate)}</td>
-                    <td className="px-6 py-4 text-gray-700 font-medium">
-                      {student.seat ? `Seat ${student.seat.seatNumber}` : '—'}
+                    <td className="px-8 py-5 text-gray-900 font-bold">{formatDate(sub.startDate)}</td>
+                    <td className="px-8 py-5 text-gray-900 font-bold">{formatDate(sub.endDate)}</td>
+                    <td className="px-8 py-5 text-gray-500 font-bold">
+                      {student.seat ? <span className="text-gray-900">Seat {student.seat.seatNumber}</span> : '—'}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-8 py-5">
                       {sub.status === 'ACTIVE' ? (
-                        <span className="inline-flex items-center rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 border border-green-200">
-                          <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-600"></span> Active
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700 border border-emerald-200 shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></span> Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 border border-red-200">
-                          <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-red-600"></span> Expired
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700 border border-red-200 shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]"></span> Expired
                         </span>
                       )}
                     </td>
@@ -295,50 +299,44 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
             </tbody>
           </table>
         </div>
-      </Card>
+      </div>
 
       {/* 4. Bottom Action Bar */}
-      <div className="flex flex-wrap items-center justify-end gap-4 pt-4 pb-12">
-
+      <div className="flex flex-wrap items-center justify-end gap-4 pt-4">
         {/* Assign New Seat: Only for ACTIVE students */}
-        <Button
-          variant="primary"
-          className="px-5 py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        <button
+          className="inline-flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3.5 rounded-xl font-bold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setIsSeatModalOpen(true)}
           disabled={!isActive}
         >
-          <ChairIcon className="w-4 h-4 mr-2" /> Assign New Seat
-        </Button>
+          <ChairIcon className="w-5 h-5 text-gray-400" /> Assign New Seat
+        </button>
 
         {/* Delete Student: Only for EXPIRED students */}
-        <Button
-          variant="ghost"
-          className="bg-red-50 text-red-600 hover:bg-red-100 font-medium px-5 py-2.5 rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        <button
+          className="inline-flex items-center justify-center gap-2 bg-red-50 border border-red-100 hover:bg-red-100 text-red-600 px-6 py-3.5 rounded-xl font-bold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setIsDeleteModalOpen(true)}
           disabled={isActive}
         >
-          <TrashIcon className="w-4 h-4 mr-2" /> Delete Student
-        </Button>
+          <TrashIcon className="w-5 h-5 text-red-400" /> Delete Profile
+        </button>
 
         {/* Edit Profile: Available for ALL students */}
-        <Button
-          variant="ghost"
-          className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-5 py-2.5 rounded-xl shadow-sm transition-colors"
+        <button
+          className="inline-flex items-center justify-center gap-2 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 text-indigo-700 px-6 py-3.5 rounded-xl font-bold shadow-sm hover:shadow-md transition-all"
           onClick={handleOpenEdit}
         >
-          <EditIcon className="w-4 h-4 mr-2" /> Edit Profile
-        </Button>
+          <EditIcon className="w-5 h-5 text-indigo-400" /> Edit Details
+        </button>
 
         {/* Renew Membership: Only for EXPIRED students */}
-        <Button
-          variant="primary"
-          className="px-5 py-2.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        <button
+          className="inline-flex items-center justify-center gap-2 bg-gradient-to-br from-emerald-600 to-emerald-800 text-white border border-transparent hover:shadow-lg hover:shadow-emerald-900/20 hover:-translate-y-0.5 px-6 py-3.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setIsRenewModalOpen(true)}
           disabled={isActive}
         >
-          <RefreshIcon className="w-4 h-4 mr-2" /> Renew Membership
-        </Button>
-
+          <RefreshIcon className="w-5 h-5" /> Renew Membership
+        </button>
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -346,18 +344,29 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
         <Modal
           isOpen={true}
           onClose={() => setIsDeleteModalOpen(false)}
-          title="Delete Student Permanently"
+          title="Delete Profile Permanently"
         >
-          <p className="text-sm text-gray-600">
-            Are you sure you want to permanently delete this student? This action cannot be undone and will erase all their history and subscriptions.
+          <p className="text-sm font-medium text-gray-600 leading-relaxed">
+            Are you sure you want to permanently delete this student? This action cannot be undone and will erase all their history, subscriptions, and profile data.
           </p>
-          <div className="mt-6 flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="mt-8 flex justify-end gap-3">
+            <button 
+              className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+              onClick={() => setIsDeleteModalOpen(false)}
+            >
               Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete} loading={isDeleting}>
-              Confirm Delete
-            </Button>
+            </button>
+            <button 
+              className="px-6 py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-center"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'Confirm Delete'
+              )}
+            </button>
           </div>
         </Modal>
       )}
@@ -369,14 +378,14 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
           onClose={() => setIsRenewModalOpen(false)}
           title="Renew Membership"
         >
-          <form onSubmit={handleRenew} className="space-y-4">
+          <form onSubmit={handleRenew} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Subscription Plan</label>
+              <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Subscription Plan</label>
               <select
                 required
                 value={selectedPlanId}
                 onChange={(e) => setSelectedPlanId(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 p-2.5 outline-none focus:border-[#4CAF50]"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 font-bold text-gray-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all shadow-inner"
               >
                 <option value="" disabled>Select a plan</option>
                 {plans?.map(p => (
@@ -386,11 +395,11 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Assign Seat</label>
+              <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Assign Seat (Optional)</label>
               <select
                 value={selectedSeatNumber}
                 onChange={(e) => setSelectedSeatNumber(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 p-2.5 outline-none focus:border-[#4CAF50]"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 font-bold text-gray-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all shadow-inner"
               >
                 <option value="">Auto-assign first available</option>
                 {seats?.filter(s => s.status === 'AVAILABLE' || s.student?.id === student.id).map(s => (
@@ -401,13 +410,20 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
               </select>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setIsRenewModalOpen(false)} type="button">
+            <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <button 
+                type="button"
+                className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                onClick={() => setIsRenewModalOpen(false)}
+              >
                 Cancel
-              </Button>
-              <Button type="submit" className="bg-[#1B5E20] text-white hover:bg-[#124116]">
+              </button>
+              <button 
+                type="submit"
+                className="px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-900/20 hover:-translate-y-0.5 transition-all"
+              >
                 Confirm Renewal
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>
@@ -420,19 +436,20 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
           onClose={() => setIsSeatModalOpen(false)}
           title="Assign New Seat"
         >
-          <div className="mb-4 rounded-lg bg-gray-50 p-4 border border-gray-100">
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold">Current Seat:</span> {student.seat ? `#${student.seat.seatNumber}` : 'None Assigned'}
+          <div className="mb-6 rounded-2xl bg-gray-50/50 p-5 border border-gray-100 text-center">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Assignment</p>
+            <p className="text-xl font-black text-gray-900">
+              {student.seat ? `#${student.seat.seatNumber}` : 'None Assigned'}
             </p>
           </div>
-          <form onSubmit={handleAssignSeat} className="space-y-4">
+          <form onSubmit={handleAssignSeat} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Select New Seat</label>
+              <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Select New Seat</label>
               <select
                 required
                 value={assignSeatNumber}
                 onChange={(e) => setAssignSeatNumber(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 p-2.5 outline-none focus:border-[#4CAF50]"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 font-bold text-gray-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all shadow-inner"
               >
                 <option value="" disabled>Select a seat</option>
                 {seats?.filter(s => s.status === 'AVAILABLE').map(s => (
@@ -443,13 +460,20 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
               </select>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setIsSeatModalOpen(false)} type="button">
+            <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <button 
+                type="button"
+                className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                onClick={() => setIsSeatModalOpen(false)}
+              >
                 Cancel
-              </Button>
-              <Button type="submit" className="bg-[#1B5E20] text-white hover:bg-[#124116]">
+              </button>
+              <button 
+                type="submit"
+                className="px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-900/20 hover:-translate-y-0.5 transition-all"
+              >
                 Confirm Assignment
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>
@@ -460,36 +484,43 @@ export default function StudentProfilePage(props: { params: Promise<{ id: string
         <Modal
           isOpen={true}
           onClose={() => setIsEditModalOpen(false)}
-          title="Edit Profile"
+          title="Edit Details"
         >
-          <form onSubmit={handleEditProfile} className="space-y-4">
+          <form onSubmit={handleEditProfile} className="space-y-5">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Phone Number *</label>
+              <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Phone Number *</label>
               <input
                 type="tel"
                 required
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 p-2.5 outline-none focus:border-[#4CAF50]"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 font-bold text-gray-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all shadow-inner"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Email Address</label>
+              <label className="mb-2 block text-xs font-bold text-gray-500 uppercase tracking-wider">Email Address</label>
               <input
                 type="email"
                 value={editForm.email}
                 onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 p-2.5 outline-none focus:border-[#4CAF50]"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 font-bold text-gray-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all shadow-inner"
               />
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setIsEditModalOpen(false)} type="button">
+            <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <button 
+                type="button"
+                className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                onClick={() => setIsEditModalOpen(false)}
+              >
                 Cancel
-              </Button>
-              <Button type="submit" className="bg-[#1B5E20] text-white hover:bg-[#124116]">
+              </button>
+              <button 
+                type="submit"
+                className="px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-900/20 hover:-translate-y-0.5 transition-all"
+              >
                 Save Changes
-              </Button>
+              </button>
             </div>
           </form>
         </Modal>

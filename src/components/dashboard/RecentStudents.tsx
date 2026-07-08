@@ -2,108 +2,78 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Card from '@/components/ui/Card';
 import { useFetch } from '@/hooks/useFetch';
-import type { StudentWithSeat } from '@/types';
 import StudentAvatar from '@/components/ui/StudentAvatar';
+import Badge from '@/components/ui/Badge';
+import { formatDate } from '@/lib/utils';
+import { Users, ChevronRight, Inbox } from 'lucide-react';
+
+interface RecentStudent {
+  id: string;
+  name: string;
+  joinDate: string;
+  photoUrl: string | null;
+  status: 'ACTIVE' | 'EXPIRED';
+}
 
 export default function RecentStudents() {
-  const { data: students, loading } = useFetch<StudentWithSeat[]>('/api/dashboard/recent-students');
-
-  if (loading) {
-    return (
-      <Card className="animate-fade-in">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Today&apos;s New Admissions</h3>
-        </div>
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-3 animate-pulse">
-              <div className="w-10 h-10 rounded-full bg-gray-200" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 bg-gray-200 rounded w-3/4" />
-                <div className="h-2 bg-gray-100 rounded w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-    );
-  }
-
-  const list = students ?? [];
+  const { data: students, loading } = useFetch<RecentStudent[]>('/api/dashboard/recent-students');
 
   return (
-    <Card className="animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Today&apos;s New Admissions</h3>
-        <Link
-          href="/students/add"
-          id="recent-add-student"
-          className="text-xs font-semibold text-[#4CAF50] hover:text-[#1B5E20] transition-colors"
+    <div className="bg-white rounded-[2rem] p-8 shadow-xl shadow-gray-200/30 border border-gray-100 h-full relative overflow-hidden flex flex-col">
+      {loading && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-20 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 shadow-inner">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Recent Students</h3>
+            <p className="text-sm font-bold text-gray-400 uppercase tracking-wider">New Enrollments</p>
+          </div>
+        </div>
+        <Link 
+          href="/students" 
+          className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
+          title="View all students"
         >
-          + Add Student
+          <ChevronRight className="w-5 h-5" />
         </Link>
       </div>
 
-      {list.length === 0 ? (
-        <div className="flex items-center justify-center h-32 text-sm text-gray-500">
-          No new enrollments today.
-        </div>
-      ) : (
-        <div className="overflow-y-auto max-h-72 -mx-1 px-1">
-          {/* Header Row */}
-          <div className="flex items-center gap-3 px-2 pb-2 border-b border-gray-100 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-            <div className="flex-1 min-w-0">Name / Mobile</div>
-            <div className="w-16 text-center flex-shrink-0">Seat</div>
-            <div className="w-24 text-right flex-shrink-0">Plan</div>
+      <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+        {!students || students.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+            <Inbox className="h-10 w-10 text-gray-300 mb-3" />
+            <p className="text-gray-500 font-bold">No students yet</p>
+            <p className="text-xs text-gray-400 mt-1">Recent enrollments will appear here.</p>
           </div>
-
-          {/* Student Rows */}
-          <ul className="divide-y divide-gray-50">
-            {list.map((student) => {
-              const seatLabel = student.seat
-                ? `#${student.seat.seatNumber}`
-                : '—';
-
-              const planName =
-                student.subscriptions?.[0]?.plan?.name ?? '—';
-
-              return (
-                <li key={student.id}>
-                  <Link
-                    href={`/students/${student.id}`}
-                    className="flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
-                  >
-                    {/* Avatar + Name/Mobile */}
-                    <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">
-                        {student.name}
-                      </p>
-                      <p className="text-xs text-gray-400">{student.phone}</p>
-                    </div>
-
-                    {/* Seat */}
-                    <div className="w-16 text-center flex-shrink-0">
-                      <span className="text-xs font-medium text-gray-600">
-                        {seatLabel}
-                      </span>
-                    </div>
-
-                    {/* Plan */}
-                    <div className="w-24 text-right flex-shrink-0">
-                      <span className="text-xs font-medium text-gray-600 truncate block">
-                        {planName}
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-    </Card>
+        ) : (
+          students.map((student) => (
+            <Link
+              key={student.id}
+              href={`/students/${student.id}`}
+              className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 bg-gray-50/50 hover:bg-emerald-50/50 hover:border-emerald-100 transition-colors group"
+            >
+              <div className="flex items-center gap-4">
+                <StudentAvatar name={student.name} photoUrl={student.photoUrl} size="sm" />
+                <div>
+                  <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">{student.name}</p>
+                  <p className="text-xs font-medium text-gray-500">Joined {formatDate(student.joinDate)}</p>
+                </div>
+              </div>
+              <Badge variant={student.status === 'ACTIVE' ? 'success' : 'danger'} className="shadow-sm">
+                {student.status}
+              </Badge>
+            </Link>
+          ))
+        )}
+      </div>
+    </div>
   );
 }

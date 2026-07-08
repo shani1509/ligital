@@ -4,7 +4,6 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useFetch, useMutation } from '@/hooks/useFetch';
-import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { formatCurrency, formatDate, daysUntil, PLATFORM_PLANS } from '@/lib/utils';
@@ -16,8 +15,7 @@ import {
   CreditCard, 
   CircleCheck, 
   Sparkles,
-  ChevronLeft,
-  ChevronRight
+  ArrowRight
 } from 'lucide-react';
 
 type PlanKey = 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
@@ -84,11 +82,11 @@ function getPlanDisplayName(billing: BillingData): string {
 }
 
 function getPlanSubtitle(billing: BillingData): string {
-  if (billing.library.status === 'TRIAL') return 'For 7 Days';
+  if (billing.library.status === 'TRIAL') return 'Enjoy full access for 7 days';
   const plan = PLATFORM_PLANS[billing.planType];
-  if (plan.durationDays === 30) return 'For 30 Days';
-  if (plan.durationDays === 90) return 'For 3 Months';
-  return 'For 1 Year';
+  if (plan.durationDays === 30) return 'Valid for 30 Days';
+  if (plan.durationDays === 90) return 'Valid for 3 Months';
+  return 'Valid for 1 Year';
 }
 
 export default function BillingPage() {
@@ -97,10 +95,8 @@ export default function BillingPage() {
   const { data: billing, loading: billingLoading, error: billingError } = useFetch<BillingData>('/api/billing');
   const { mutate, loading: subscribing } = useMutation();
   const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
-  const [selectedUiPlan, setSelectedUiPlan] = useState<PlanKey>('QUARTERLY');
   const [success, setSuccess] = useState(false);
   
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const plansSectionRef = useRef<HTMLDivElement>(null);
 
   const scrollToPlans = () => {
@@ -120,18 +116,6 @@ export default function BillingPage() {
     }
   };
 
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -350, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 350, behavior: 'smooth' });
-    }
-  };
-
   // Derived state from live data
   const libraryStatus = billing?.library.status ?? 'TRIAL';
   const isTrial = libraryStatus === 'TRIAL';
@@ -140,217 +124,203 @@ export default function BillingPage() {
   const endDate = billing?.endDate;
   const remaining = endDate ? daysUntil(endDate) : 0;
 
+  // Determine Gradient Based on Status
+  let cardGradient = 'from-[#0B3D1B] to-[#1B5E20]'; // Default Active (Green)
+  if (isTrial) cardGradient = 'from-indigo-900 to-indigo-600';
+  if (isExpired) cardGradient = 'from-red-900 to-red-700';
+
   return (
-    <div className="space-y-10 animate-fade-in font-sans pb-16">
+    <div className="space-y-8 animate-fade-in font-sans pb-12 max-w-6xl mx-auto w-full">
 
       {/* ── 1. Page Header & Actions ─────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
         <div>
-          <h1 className="text-xl md:text-3xl font-bold text-gray-900 tracking-tight">Billing</h1>
-          <p className="mt-2 text-base text-gray-500">Manage your current plan and payment history.</p>
+          <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Billing & Plans</h1>
+          <p className="mt-2 text-base text-gray-500 max-w-xl">Manage your active subscription and explore upgrading to our premium plans.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          <button className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:shadow-md hover:scale-[1.02]">
+          <button className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:shadow-md hover:-translate-y-0.5">
             <Wallet className="w-4 h-4" />
             Payment History
           </button>
           <button 
             onClick={scrollToPlans} 
-            className="inline-flex items-center gap-2 rounded-xl bg-[#1B5E20] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-[#2E7D32] hover:shadow-md hover:scale-[1.02]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1B5E20] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/20 transition-all duration-300 hover:bg-[#124116] hover:shadow-xl hover:shadow-green-900/30 hover:-translate-y-0.5"
           >
             <CreditCard className="w-4 h-4" />
-            Choose a Plan
+            Upgrade Plan
           </button>
         </div>
       </div>
 
       {/* Success Message */}
       {success && (
-        <div className="rounded-xl border border-[#C8E6C9] bg-[#E8F5E9] p-5 text-sm text-[#1B5E20] shadow-sm flex items-center gap-3 animate-fade-in-up">
-          <CircleCheck className="w-5 h-5 flex-shrink-0" />
-          <span><strong>Payment Successful!</strong> Your subscription has been activated. Enjoy Ligital!</span>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-sm text-emerald-800 shadow-md flex items-center gap-4 animate-fade-in-up">
+          <div className="bg-emerald-100 p-2 rounded-full">
+            <CircleCheck className="w-6 h-6 text-emerald-600" />
+          </div>
+          <div>
+            <h4 className="font-bold text-base mb-0.5">Payment Successful!</h4>
+            <p className="text-emerald-700">Your subscription has been activated successfully. Enjoy Ligital!</p>
+          </div>
         </div>
       )}
 
-      {/* ── 2. Current Plan Card ────────────── */}
-      <Card className="p-0 overflow-hidden border border-gray-100 shadow-md rounded-2xl bg-white">
+      {/* ── 2. Current Plan Card (Redesigned with Glassmorphism) ────────────── */}
+      <div className="w-full">
         {billingLoading ? (
-          <div className="p-12 flex items-center justify-center">
-            <div className="w-8 h-8 border-4 border-[#C8E6C9] border-t-[#1B5E20] rounded-full animate-spin" />
+          <div className="rounded-3xl border border-gray-100 bg-white shadow-sm p-16 flex items-center justify-center">
+            <div className="w-10 h-10 border-4 border-[#C8E6C9] border-t-[#1B5E20] rounded-full animate-spin" />
           </div>
         ) : billingError || !billing ? (
-          <div className="p-12 text-center text-gray-500 text-sm">
-            <p>Unable to load billing information.</p>
-            <p className="mt-2 text-xs text-gray-400">Please subscribe to a plan to get started.</p>
+          <div className="rounded-3xl border border-gray-100 bg-white shadow-sm p-16 text-center text-gray-500">
+            <p className="font-medium text-lg text-gray-900">Unable to load billing information.</p>
+            <p className="mt-2">Please subscribe to a plan to get started.</p>
           </div>
         ) : (
-          <div className="flex flex-col">
-            <div className="p-8">
-              {/* Plan header */}
-              <div className="flex items-center gap-5 mb-8">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${isTrial ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-[#1B5E20]'}`}>
-                  {isTrial ? <Sparkles className="w-7 h-7" /> : <Crown className="w-7 h-7" />}
-                </div>
+          <div className={`relative overflow-hidden rounded-[2rem] shadow-2xl bg-gradient-to-br ${cardGradient} text-white transition-all duration-500 group`}>
+            
+            {/* Abstract Background Shapes */}
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-white/10 blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+            <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-black/10 blur-2xl"></div>
+
+            <div className="relative z-10 p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-2">
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold tracking-wide uppercase shadow-sm border border-white/20 backdrop-blur-md ${
+                  isExpired ? 'bg-red-500/20 text-red-100' : isTrial ? 'bg-indigo-400/20 text-indigo-100' : 'bg-emerald-400/20 text-emerald-100'
+                }`}>
+                  {isExpired ? 'Status: Expired' : isTrial ? 'Status: Trial' : 'Status: Active'}
+                </span>
+              </div>
+              
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-2xl font-bold text-gray-900 tracking-tight">{getPlanDisplayName(billing)}</h4>
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold border ${
-                      isExpired
-                        ? 'bg-red-50 text-red-700 border-red-100'
-                        : isTrial
-                        ? 'bg-blue-50 text-blue-700 border-blue-100'
-                        : 'bg-[#E8F5E9] text-[#1B5E20] border-green-100'
-                    }`}>
-                      {isExpired ? 'Expired' : isTrial ? 'Trial' : 'Active'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">{getPlanSubtitle(billing)}</p>
+                  <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-1 flex items-center gap-3">
+                    {isTrial ? <Sparkles className="w-8 h-8 text-indigo-300" /> : <Crown className="w-8 h-8 text-emerald-300" />}
+                    {getPlanDisplayName(billing)}
+                  </h2>
+                  <p className="text-base text-white/80 font-medium">{getPlanSubtitle(billing)}</p>
                 </div>
+                {!isExpired && (
+                  <div className="text-left md:text-right">
+                    <p className="text-xs font-medium text-white/70 uppercase tracking-wider mb-0.5">Time Remaining</p>
+                    <p className="text-2xl font-bold">{remaining} <span className="text-lg font-normal text-white/80">days</span></p>
+                  </div>
+                )}
               </div>
 
-              {/* Details grid */}
-              <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-                <div className="md:pr-8 flex-1">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Amount Paid</p>
-                  <p className="text-2xl font-bold text-gray-900">
+              {/* Glassmorphic Data Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 transition-all duration-300 hover:bg-white/15">
+                  <p className="text-xs font-medium text-white/70 uppercase tracking-wider mb-1">Amount Paid</p>
+                  <p className="text-2xl font-bold">
                     {isTrial ? '₹0' : formatCurrency(billing.amountPaise)}
                   </p>
                 </div>
-                <div className="md:px-8 flex-1 pt-6 md:pt-0">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Start Date</p>
-                  <p className="text-lg font-semibold text-gray-800">{formatDate(billing.startDate)}</p>
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 transition-all duration-300 hover:bg-white/15">
+                  <p className="text-xs font-medium text-white/70 uppercase tracking-wider mb-1">Start Date</p>
+                  <p className="text-lg font-semibold">{formatDate(billing.startDate)}</p>
                 </div>
-                <div className="md:pl-8 flex-1 pt-6 md:pt-0">
-                  <p className="text-sm font-medium text-gray-400 mb-1">Expiry Date</p>
-                  <p className="text-lg font-semibold text-gray-800">{formatDate(billing.endDate)}</p>
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 transition-all duration-300 hover:bg-white/15">
+                  <p className="text-xs font-medium text-white/70 uppercase tracking-wider mb-1">Expiry Date</p>
+                  <p className="text-lg font-semibold text-white">{formatDate(billing.endDate)}</p>
                 </div>
               </div>
             </div>
 
-            {/* Countdown banner */}
-            <div className={`px-8 py-4 flex items-center gap-3 border-t ${
-              isExpired ? 'bg-red-50/50 border-red-100' : 'bg-[#E8F5E9]/50 border-green-100'
-            }`}>
-              <Calendar className={`w-5 h-5 flex-shrink-0 ${isExpired ? 'text-red-600' : 'text-[#1B5E20]'}`} />
-              {isExpired ? (
-                <p className="text-sm text-red-700">
-                  Your plan expired on <strong className="font-semibold">{formatDate(billing.endDate)}</strong>. Please recharge to continue using Ligital.
-                </p>
-              ) : (
-                <p className={`text-sm ${isTrial ? 'text-blue-800' : 'text-[#1B5E20]'}`}>
-                  Your {isTrial ? 'trial' : 'plan'} will expire in <strong className="font-bold">{remaining} day{remaining !== 1 ? 's' : ''}</strong> on <strong className="font-bold">{formatDate(billing.endDate)}</strong>.
-                </p>
-              )}
-            </div>
+            {/* Warning Banner for Expired */}
+            {isExpired && (
+              <div className="relative z-10 bg-red-950/50 backdrop-blur-md border-t border-red-500/30 px-8 py-5 flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-red-300" />
+                  <p className="text-sm md:text-base text-red-100 font-medium">
+                    Your plan expired on <strong className="font-bold text-white">{formatDate(billing.endDate)}</strong>. Please recharge immediately to restore access.
+                  </p>
+                </div>
+                <button onClick={scrollToPlans} className="shrink-0 bg-white text-red-900 px-5 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-red-50 transition-colors">
+                  Recharge Now
+                </button>
+              </div>
+            )}
           </div>
         )}
-      </Card>
+      </div>
 
-      {/* ── 3. Choose Plan Section ───────────────── */}
-      <div id="choose-plan" className="pt-8 scroll-mt-24" ref={plansSectionRef}>
+      {/* ── 3. Choose Plan Section (Redesigned Layout) ───────────────── */}
+      <div id="choose-plan" className="pt-6 scroll-mt-24" ref={plansSectionRef}>
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Choose Plan</h2>
-          <p className="mt-3 text-gray-500 max-w-xl mx-auto">Select the perfect plan for your library's needs. Upgrade anytime.</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Simple, transparent pricing</h2>
+          <p className="mt-3 text-base text-gray-500 max-w-2xl mx-auto">Select the perfect plan for your library's needs. No hidden fees. Upgrade or change your plan at any time.</p>
         </div>
         
-        <div className="relative group">
-          {/* Navigation Arrows */}
-          <button 
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -ml-5 z-20 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-600 hover:text-[#1B5E20] hover:scale-110 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          
-          <button 
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 -mr-5 z-20 w-12 h-12 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-600 hover:text-[#1B5E20] hover:scale-110 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+          {planCards.map((plan, idx) => {
+            const Icon = plan.icon;
+            const isPopular = plan.popular;
 
-          {/* Carousel Container */}
-          <div 
-            ref={scrollContainerRef}
-            className="flex flex-col lg:flex-row gap-6 justify-center items-stretch w-full px-4 md:px-10 pb-12 pt-6"
-          >
-            {planCards.map((plan, idx) => {
-              const isSelected = selectedUiPlan === plan.key;
-              const Icon = plan.icon;
-
-              return (
-                <div
-                  key={plan.key}
-                  onClick={() => setSelectedUiPlan(plan.key)}
-                  className={`relative flex flex-col p-8 rounded-[24px] bg-white transition-all duration-300 ease-out cursor-pointer w-full lg:w-[340px] ${
-                    isSelected
-                      ? 'border-2 border-[#1B5E20] shadow-[0_20px_40px_-15px_rgba(27,94,32,0.2)] scale-[1.03] z-10'
-                      : 'border border-gray-100 shadow-sm hover:border-[#1B5E20]/30 hover:-translate-y-1 hover:shadow-xl scale-95 opacity-90 hover:opacity-100'
-                  }`}
-                  style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'both' }}
-                >
-                  {/* Most Popular Badge */}
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#1B5E20] text-white text-xs font-bold px-4 py-1.5 rounded-full z-10 shadow-md tracking-wide uppercase">
-                      Most Popular
-                    </div>
-                  )}
-
-                  {/* Card Header */}
-                  <div className="flex flex-col items-center mb-6 text-center">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-colors duration-300 ${
-                      isSelected ? 'bg-[#1B5E20] text-white' : 'bg-green-50 text-[#1B5E20]'
-                    }`}>
-                      <Icon className="w-7 h-7" />
-                    </div>
-                    <h4 className="text-xl font-bold text-gray-900">{plan.name}</h4>
-                    <p className="text-sm text-gray-500 mt-1">{plan.subtitle}</p>
-                  </div>
-                  
-                  {/* Price Display */}
-                  <div className="text-center mb-8">
-                    <span className="text-5xl font-black text-gray-900 tracking-tight">{plan.priceLabel}</span>
-                    <span className="text-gray-500 text-sm font-medium ml-1 block mt-2">{plan.period}</span>
-                  </div>
-
-                  {/* Features List */}
-                  <ul className="space-y-4 flex-1 mb-10">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start text-sm text-gray-600 font-medium">
-                        <CircleCheck className="w-5 h-5 text-[#1B5E20] mr-3 flex-shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Action Button */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setSelectedPlan(plan.key); }}
-                    className={`w-full py-4 rounded-xl font-bold text-base transition-all duration-300 ${
-                      isSelected
-                        ? 'bg-[#1B5E20] text-white shadow-md hover:bg-[#124116] hover:shadow-lg hover:scale-[1.02]'
-                        : 'bg-green-50 text-[#1B5E20] hover:bg-[#1B5E20] hover:text-white'
-                    }`}
-                  >
-                    Choose Plan
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Pagination Dots */}
-          <div className="flex justify-center items-center gap-3 mt-2">
-            {planCards.map((plan) => (
-              <button
-                key={`dot-${plan.key}`}
-                onClick={() => setSelectedUiPlan(plan.key)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  selectedUiPlan === plan.key ? 'bg-[#1B5E20] w-8' : 'bg-gray-300 hover:bg-gray-400'
+            return (
+              <div
+                key={plan.key}
+                className={`relative flex flex-col p-6 md:p-8 rounded-[2rem] bg-white transition-all duration-500 ease-out group ${
+                  isPopular
+                    ? 'border-2 border-emerald-500 shadow-[0_20px_60px_-15px_rgba(16,185,129,0.3)] hover:-translate-y-2 hover:shadow-[0_30px_70px_-15px_rgba(16,185,129,0.4)] z-10'
+                    : 'border border-gray-100 shadow-xl shadow-gray-200/40 hover:-translate-y-2 hover:shadow-2xl hover:shadow-gray-200/60 hover:border-emerald-200'
                 }`}
-              />
-            ))}
-          </div>
+                style={{ animationDelay: `${idx * 150}ms`, animationFillMode: 'both' }}
+              >
+                {/* Most Popular Glowing Badge */}
+                {isPopular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-400 to-[#1B5E20] text-white text-xs font-black px-5 py-1.5 rounded-full z-10 shadow-[0_0_20px_rgba(16,185,129,0.4)] tracking-wider uppercase">
+                    Most Popular
+                  </div>
+                )}
+
+                {/* Card Header */}
+                <div className="mb-6">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500 ${
+                    isPopular ? 'bg-gradient-to-br from-emerald-100 to-green-50 text-emerald-700 shadow-inner' : 'bg-gray-50 text-gray-600 group-hover:bg-emerald-50 group-hover:text-emerald-700'
+                  }`}>
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">{plan.name}</h4>
+                  <p className="text-sm text-gray-500 mt-1 font-medium">{plan.subtitle}</p>
+                </div>
+                
+                {/* Price Display */}
+                <div className="mb-6 pb-6 border-b border-gray-100">
+                  <div className="flex items-baseline text-gray-900">
+                    <span className="text-5xl font-black tracking-tighter">{plan.priceLabel}</span>
+                  </div>
+                  <span className="text-gray-500 font-medium block mt-1.5 text-base">{plan.period}</span>
+                </div>
+
+                {/* Features List */}
+                <ul className="space-y-4 flex-1 mb-8">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start text-sm text-gray-600 font-medium group-hover:text-gray-900 transition-colors">
+                      <div className="mt-0.5 mr-3 rounded-full bg-emerald-100 p-1 flex-shrink-0">
+                        <CircleCheck className="w-3.5 h-3.5 text-emerald-700" />
+                      </div>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => setSelectedPlan(plan.key)}
+                  className={`w-full py-4 px-6 rounded-2xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+                    isPopular
+                      ? 'bg-[#1B5E20] text-white shadow-lg shadow-green-900/20 hover:bg-[#124116] hover:shadow-xl hover:shadow-green-900/40 hover:-translate-y-1'
+                      : 'bg-white border-2 border-gray-200 text-gray-900 hover:border-[#1B5E20] hover:bg-[#1B5E20] hover:text-white hover:-translate-y-1 hover:shadow-lg'
+                  }`}
+                >
+                  Choose Plan
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -359,34 +329,36 @@ export default function BillingPage() {
         <Modal
           isOpen={true}
           onClose={() => setSelectedPlan(null)}
-          title="Confirm Payment"
+          title="Confirm Subscription"
         >
-          <div className="space-y-4">
-            <div className="rounded-xl bg-[#E8F5E9] p-6 text-center border border-green-100">
-              <p className="text-sm font-medium text-gray-600 mb-2">You are subscribing to</p>
-              <p className="text-2xl font-bold text-[#1B5E20]">
-                {PLATFORM_PLANS[selectedPlan].label}
+          <div className="space-y-6">
+            <div className="rounded-3xl bg-gradient-to-br from-emerald-50 to-green-50 p-8 text-center border border-emerald-100 shadow-sm">
+              <p className="text-sm font-bold tracking-widest text-emerald-800 uppercase mb-3">You are subscribing to</p>
+              <p className="text-3xl font-black text-gray-900 mb-4">
+                {PLATFORM_PLANS[selectedPlan].label} Plan
               </p>
-              <p className="mt-3 text-4xl font-black text-gray-900 tracking-tight">
-                {formatCurrency(PLATFORM_PLANS[selectedPlan].pricePaise)}
-              </p>
-              <p className="mt-2 text-sm font-medium text-gray-500">
-                for {PLATFORM_PLANS[selectedPlan].durationDays} days
-              </p>
+              <div className="inline-block bg-white rounded-2xl px-8 py-4 shadow-sm border border-emerald-50">
+                <p className="text-5xl font-black text-emerald-700 tracking-tight">
+                  {formatCurrency(PLATFORM_PLANS[selectedPlan].pricePaise)}
+                </p>
+                <p className="mt-2 text-sm font-bold text-gray-500 uppercase tracking-wider">
+                  for {PLATFORM_PLANS[selectedPlan].durationDays} days
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 flex items-start gap-3">
-              <Wallet className="w-5 h-5 flex-shrink-0 text-yellow-600 mt-0.5" />
-              <p><strong>Mock Payment:</strong> In production, this would redirect to a payment gateway. For now, clicking "Pay Now" will instantly activate your subscription.</p>
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900 flex items-start gap-4">
+              <Wallet className="w-6 h-6 flex-shrink-0 text-amber-600" />
+              <p className="leading-relaxed"><strong>Test Mode Environment:</strong> This action simulates a payment flow. Clicking "Pay Now" will instantly activate your subscription without processing real currency.</p>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-end gap-4">
-            <Button variant="secondary" onClick={() => setSelectedPlan(null)} className="px-6">
+          <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
+            <Button variant="secondary" onClick={() => setSelectedPlan(null)} className="px-8 py-3 rounded-xl w-full sm:w-auto">
               Cancel
             </Button>
-            <Button onClick={handleSubscribe} loading={subscribing} className="px-8 flex items-center gap-2">
-              <CreditCard className="w-4 h-4" />
+            <Button onClick={handleSubscribe} loading={subscribing} className="px-10 py-3 rounded-xl bg-[#1B5E20] hover:bg-[#124116] flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-green-900/20">
+              <CreditCard className="w-5 h-5" />
               Pay Now
             </Button>
           </div>
