@@ -190,19 +190,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Save file to public/uploads/students/
-      const { randomUUID } = await import('crypto');
-      const photoId = randomUUID();
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'students');
-
-      // Ensure directory exists
-      await fs.mkdir(uploadDir, { recursive: true });
-
-      const photoPath = path.join(uploadDir, `${photoId}.jpg`);
-      const buffer = Buffer.from(await photoFile.arrayBuffer());
-      await fs.writeFile(photoPath, buffer);
-
-      photoUrl = `/uploads/students/${photoId}.jpg`;
+      // Upload photo to Vercel Blob
+      const { put } = await import('@vercel/blob');
+      const blob = await put(`students/${photoFile.name}`, photoFile, { 
+        access: 'public' 
+      });
+      photoUrl = blob.url;
     }
 
     // Encrypt Aadhar if provided

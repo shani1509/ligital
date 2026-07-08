@@ -69,7 +69,7 @@ export default function AddStudentPage() {
   const selectedPlan = activePlans.find((p) => p.id === planId);
 
   // Photo handler
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -83,8 +83,59 @@ export default function AddStudentPage() {
       delete next.photo;
       return next;
     });
-    setPhoto(file);
-    setPhotoPreview(URL.createObjectURL(file));
+
+    try {
+      // Compress image client-side to save db space and bandwidth
+      const compressedFile = await new Promise<File>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new window.Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 400;
+
+            if (width > height && width > maxDim) {
+              height *= maxDim / width;
+              width = maxDim;
+            } else if (height > maxDim) {
+              width *= maxDim / height;
+              height = maxDim;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+                } else {
+                  reject(new Error('Compression failed'));
+                }
+              },
+              'image/jpeg',
+              0.8
+            );
+          };
+          img.onerror = () => reject(new Error('Invalid image'));
+          if (e.target?.result) img.src = e.target.result as string;
+        };
+        reader.onerror = () => reject(new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+
+      setPhoto(compressedFile);
+      setPhotoPreview(URL.createObjectURL(compressedFile));
+    } catch (err) {
+      console.error('Image compression error:', err);
+      // Fallback to original if compression fails
+      setPhoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
   };
 
   // Client-side validation
