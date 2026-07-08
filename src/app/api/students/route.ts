@@ -175,10 +175,9 @@ export async function POST(request: NextRequest) {
     const photoFile = formData.get('photo') as File | null;
     if (photoFile && photoFile.size > 0) {
       // Validate file type
-      const fileName = photoFile.name.toLowerCase();
-      if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg')) {
+      if (!photoFile.type.startsWith('image/')) {
         return NextResponse.json(
-          apiError('Photo must be a .jpg or .jpeg file'),
+          apiError('Photo must be a valid image file'),
           { status: 400 }
         );
       }

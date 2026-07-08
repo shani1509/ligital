@@ -73,9 +73,8 @@ export default function AddStudentPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const fileName = file.name.toLowerCase();
-    if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg')) {
-      setErrors((prev) => ({ ...prev, photo: 'Only .jpg and .jpeg files are allowed' }));
+    if (!file.type.startsWith('image/')) {
+      setErrors((prev) => ({ ...prev, photo: 'Please upload a valid image file' }));
       return;
     }
 
@@ -129,7 +128,16 @@ export default function AddStudentPage() {
       if (photo) formData.append('photo', photo);
 
       const res = await fetch('/api/students', { method: 'POST', body: formData });
-      const json: ApiResponse = await res.json();
+      
+      let json: ApiResponse;
+      try {
+        json = await res.json();
+      } catch (e) {
+        if (!res.ok) {
+          throw new Error(res.status === 413 ? 'Photo is too large (max 4MB)' : `Server error: ${res.status}`);
+        }
+        throw e;
+      }
 
       if (json.success) {
         router.refresh();
@@ -138,8 +146,8 @@ export default function AddStudentPage() {
         setServerError(json.message || 'Failed to add student');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    } catch {
-      setServerError('Network error. Please try again.');
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Network error. Please try again.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
@@ -315,7 +323,7 @@ export default function AddStudentPage() {
                     <input
                       type="file"
                       id="photo-upload"
-                      accept=".jpg,.jpeg"
+                      accept="image/*"
                       onChange={handlePhotoChange}
                       className="hidden"
                     />
@@ -325,7 +333,7 @@ export default function AddStudentPage() {
                     >
                       Choose Image...
                     </label>
-                    <p className="mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">JPG, JPEG ONLY. MAX 5MB.</p>
+                    <p className="mt-2 text-xs font-bold text-gray-400 uppercase tracking-wider">IMAGE FILES ONLY. MAX 5MB.</p>
                   </div>
                 </div>
                 {errors.photo && <p className="text-xs font-bold text-red-500">{errors.photo}</p>}
