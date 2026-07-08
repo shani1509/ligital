@@ -25,16 +25,22 @@ export default function RegisterPage() {
   });
   const [turnstileToken, setTurnstileToken] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    // Clear specific field error when typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors((prev) => ({ ...prev, [e.target.name]: [] }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
     setSuccess('');
 
     // Validation
@@ -43,8 +49,13 @@ export default function RegisterPage() {
       return;
     }
 
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+    
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(form.password)) {
+      setError('Password must contain at least one uppercase letter, one lowercase letter, and one number.');
       return;
     }
 
@@ -76,6 +87,7 @@ export default function RegisterPage() {
       setTimeout(() => router.push('/login'), 2000);
     } else {
       setError(result.message || 'Registration failed. Please try again.');
+      if (result.errors) setFieldErrors(result.errors);
       setTurnstileToken('');
     }
   };
@@ -159,6 +171,7 @@ export default function RegisterPage() {
                     placeholder="My Study Library"
                     value={form.libraryName}
                     onChange={handleChange}
+                    error={fieldErrors.libraryName?.[0]}
                     icon={<Building2 className="w-5 h-5" />}
                   />
                   <Input
@@ -168,6 +181,7 @@ export default function RegisterPage() {
                     placeholder="John Doe"
                     value={form.ownerName}
                     onChange={handleChange}
+                    error={fieldErrors.ownerName?.[0]}
                     icon={<User className="w-5 h-5" />}
                   />
                 </div>
@@ -180,6 +194,7 @@ export default function RegisterPage() {
                   placeholder="you@example.com"
                   value={form.email}
                   onChange={handleChange}
+                  error={fieldErrors.email?.[0]}
                   icon={<Mail className="w-5 h-5" />}
                 />
 
@@ -189,9 +204,10 @@ export default function RegisterPage() {
                     label="Password"
                     name="password"
                     type="password"
-                    placeholder="Min. 6 characters"
+                    placeholder="Min 8 chars, 1 uppercase, 1 number"
                     value={form.password}
                     onChange={handleChange}
+                    error={fieldErrors.password?.[0]}
                     icon={<Lock className="w-5 h-5" />}
                   />
                   <Input
@@ -202,6 +218,7 @@ export default function RegisterPage() {
                     placeholder="Re-enter password"
                     value={form.confirmPassword}
                     onChange={handleChange}
+                    error={fieldErrors.confirmPassword?.[0]}
                     icon={<Lock className="w-5 h-5" />}
                   />
                 </div>
@@ -215,6 +232,7 @@ export default function RegisterPage() {
                     placeholder="+91 9876543210"
                     value={form.phone}
                     onChange={handleChange}
+                    error={fieldErrors.phone?.[0]}
                     icon={<Phone className="w-5 h-5" />}
                   />
                   <Input
@@ -225,6 +243,7 @@ export default function RegisterPage() {
                     placeholder="e.g. 50"
                     value={form.maxCapacity}
                     onChange={handleChange}
+                    error={fieldErrors.maxCapacity?.[0]}
                     icon={<Users className="w-5 h-5" />}
                   />
                 </div>
@@ -236,6 +255,7 @@ export default function RegisterPage() {
                   placeholder="Full physical address"
                   value={form.address}
                   onChange={handleChange}
+                  error={fieldErrors.address?.[0]}
                   icon={<MapPin className="w-5 h-5" />}
                 />
 

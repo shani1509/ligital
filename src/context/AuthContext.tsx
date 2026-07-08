@@ -8,7 +8,7 @@ interface AuthContextType {
   loading: boolean;
   isExpired: boolean;
   login: (email: string, password: string, cfTurnstileToken: string) => Promise<{ success: boolean; message?: string }>;
-  register: (data: RegisterData) => Promise<{ success: boolean; message?: string }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; message?: string; errors?: Record<string, string[]> }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.success) {
         return { success: true, message: data.message };
       }
-      return { success: false, message: data.message || 'Registration failed' };
+      return { success: false, message: data.message || 'Registration failed', errors: data.errors };
     } catch {
       return { success: false, message: 'Network error. Please try again.' };
     }
